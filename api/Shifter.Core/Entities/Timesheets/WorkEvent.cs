@@ -7,6 +7,7 @@ namespace Shifter.Core.Entities.Timesheets
     {
         public Guid EmployeeProfileId { get; set; }
         public EmployeeProfile? EmployeeProfile { get; set; }
+        public Guid CompanyId { get; set; }
 
         public WorkEventType Type { get; set; }
         public DateTime StartTime { get; set; }
