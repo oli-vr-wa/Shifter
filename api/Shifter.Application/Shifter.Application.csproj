@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Shifter.Core\Shifter.Core.csproj" />
+  </ItemGroup>
+
 </Project>
