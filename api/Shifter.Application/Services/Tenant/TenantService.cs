@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Shifter.Application.Services.Tenant;
 
-internal class TenantService : ITenantService
+public class TenantService : ITenantService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -23,6 +23,6 @@ internal class TenantService : ITenantService
         if (Guid.TryParse(companyIdClaim, out var companyId))        
             return companyId;
 
-        throw new UnauthorizedAccessException("Company context could not be resolved");
+        return Guid.Empty;
     }
 }
