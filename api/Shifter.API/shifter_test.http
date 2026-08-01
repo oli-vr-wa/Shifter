@@ -1,0 +1,25 @@
+# Shifter API Tests
+@hostname = https://localhost:7176
+
+###
+
+# 1. Login
+POST {{hostname}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+###
+
+# 2. MFA Verification
+# Replace 'PASTE_YOUR_MFA_TOKEN_HERE' with the 'mfaToken' value from the Login response
+POST {{hostname}}/api/auth/verify-mfa
+Content-Type: application/json
+Authorization: Bearer PASTE_YOUR_MFA_TOKEN_HERE
+
+{
+  "code": "123456"
+}
