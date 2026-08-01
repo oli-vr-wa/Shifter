@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Shifter.Application.Interfaces.Tenant;
 using Shifter.Core.Entities.HR;
 using Shifter.Core.Entities.Identity;
 using Shifter.Core.Entities.Tenant;
 using Shifter.Core.Entities.Timesheets;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Shifter.Infrastructure.Data;
 
@@ -13,10 +11,10 @@ public class ShifterDbContext : DbContext
 {
     private readonly Guid _currentCompanyId;
 
-    public ShifterDbContext(DbContextOptions<ShifterDbContext> options, Guid currentCompanyId)
+    public ShifterDbContext(DbContextOptions<ShifterDbContext> options, ITenantService tenantService)
         : base(options)
     {
-        _currentCompanyId = currentCompanyId;
+        _currentCompanyId = tenantService.GetCompanyId();
     }
 
     public ShifterDbContext(DbContextOptions<ShifterDbContext> options)
