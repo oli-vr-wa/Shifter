@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shifter.Application.Interfaces.Tenant;
-using Shifter.Core.Entities.HR;
 using Shifter.Core.Entities.Identity;
 using Shifter.Core.Entities.Tenant;
 using Shifter.Core.Entities.Timesheets;
@@ -19,6 +18,7 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
         _tenantService = tenantService!;
     }
 
+    public DbSet<UserProfile> EmployeeProfiles { get; set; }
     public DbSet<Company> Companies { get; set; }
     public DbSet<WorkEvent> WorkEvents { get; set; }
 
@@ -29,9 +29,8 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
         modelBuilder.Entity<User>(b => b.ToTable("Users"));
         modelBuilder.Entity<IdentityRole<Guid>>(b => b.ToTable("Roles"));
 
-        // Apply global query filter for multi-tenancy to use the current company ID
-        //var tenantId = _tenantService?.GetCompanyId() ?? Guid.Empty;
-        modelBuilder.Entity<EmployeeProfile>().HasQueryFilter(e => e.CompanyId == _tenantService!.GetCompanyId());
+        // Apply global query filter for multi-tenancy to use the current company ID>
+        modelBuilder.Entity<UserProfile>().HasQueryFilter(e => e.CompanyId == _tenantService!.GetCompanyId());
         modelBuilder.Entity<WorkEvent>().HasQueryFilter(w => w.CompanyId == _tenantService!.GetCompanyId());
         modelBuilder.Entity<User>().HasQueryFilter(u => u.CompanyId == _tenantService!.GetCompanyId());
     }

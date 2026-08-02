@@ -72,18 +72,18 @@ builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 
 // Seed tests
-using (var scope = app.Services.CreateScope())
-{
-    var serviceProvider = scope.ServiceProvider;
-    try
-    {
-        await DatabaseSeeder.InitializeAsync(serviceProvider);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"An error occurred while seeding the database: {ex.Message}");
-    }
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var serviceProvider = scope.ServiceProvider;
+//    try
+//    {
+//        await DatabaseSeeder.InitializeAsync(serviceProvider);
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine($"An error occurred while seeding the database: {ex.Message}");
+//    }
+//}
 
 app.UseHttpsRedirection();
 
