@@ -3,6 +3,30 @@
 
 ###
 
+### Register a New User
+# 1. Register
+POST {{hostname}}/api/auth/register
+content-type: application/json
+{
+  "email": "registerTest@example.com",
+  "password": "SuperSecure1!",
+  "confirmPassword": "SuperSecure1!",
+  "firstName": "Test",
+  "lastName": "User",
+  "companyName": "Test Company",
+  "companyAbn": 123456789
+}
+
+###
+
+# 2. Verify Email
+@userId = 019fc20d-f494-7471-b43c-c9877e642436
+@token = CfDJ8GiIAepJg05Gkl+gqd8iy/napsxFECVQNqp9m7iKqKYejybZLLHkaIah2IrLmJvflmWsDJftZT+FUCNSjmRXycgVJRFYHNn6SG+B7UNarf7JLGeeYvmp6NKw5FU/YuL+csQxPwWqjR+eoIenxen4fYu6BkQ3X/1C1UigJb9P4/RyHt0uOeBy+pbO7MXrxID/EW+BXpi3A+kzZ0eGZnybR5aqtCBruKvs50LJFgxrQVrqVjfMaiNjCyW8E4lhj+89vA==
+
+GET {{hostname}}/api/auth/verify-email?userId={{userId}}&token={{token}}
+
+### Login and MFA Verification
+
 # 1. Login
 POST {{hostname}}/api/auth/login
 Content-Type: application/json

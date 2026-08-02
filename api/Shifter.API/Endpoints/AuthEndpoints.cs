@@ -12,8 +12,30 @@ public static class AuthEndpoints
     {
         var group = routes.MapGroup("/api/auth");
 
+        group.MapPost("/register", RegisterAsync);
+        group.MapGet("/verify-email", ConfirmEmailAsync);
         group.MapPost("/login", LoginAsync);
-        group.MapPost("/verify-mfa", VerifyMfaAsync).RequireAuthorization();
+        group.MapPost("/verify-mfa", VerifyMfaAsync).RequireAuthorization();        
+    }
+
+    private static async Task<IResult> RegisterAsync([FromBody] Application.DTOs.Identity.RegisterRequest request, IAuthService authService)
+    {
+        var result = await authService.RegisterAsync(request);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result.Errors);
+        }
+        return Results.Ok("User registered successfully. Please check your email to confirm your account.");
+    }
+
+    private static async Task<IResult> ConfirmEmailAsync([FromQuery] Guid userId, [FromQuery] string token, IAuthService authService)
+    {
+        var result = await authService.ConfirmEmailAsync(userId, token);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result.Errors);
+        }
+        return Results.Ok("Email confirmed successfully.");
     }
 
     private static async Task<IResult> LoginAsync([FromBody] LoginRequest request, IAuthService authService)

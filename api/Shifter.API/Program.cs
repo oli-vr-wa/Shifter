@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Shifter.API.Endpoints;
+using Shifter.Application.Interfaces.Repositories.Core;
 using Shifter.Core.Entities.Identity;
 using Shifter.Infrastructure.Data;
 using Shifter.Infrastructure.Data.Seed;
+using Shifter.Infrastructure.Repositories.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,7 @@ builder.Services.Scan(scan => scan
         type.Name.EndsWith("Repository")))
     .AsImplementedInterfaces()
     .WithScopedLifetime());
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddHttpContextAccessor();
 

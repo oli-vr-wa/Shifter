@@ -16,4 +16,12 @@ public class UserRepository(ShifterDbContext context) : IUserRepository
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(u => u.Email == email);
     }
+
+    /// <inheritdoc />
+    public async Task<User?> GetUserByIdAsync(Guid userId)
+    {
+        return await _context.Users
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
 }
