@@ -11,4 +11,11 @@ public interface IUserRepository
     /// <param name="email">The email of the user to retrieve.</param>
     /// <returns>The user if found; otherwise, null.</returns>
     Task<User?> GetUserByEmailForAuthAsync(string email);
+
+    /// <summary>
+    /// Gets a user by their unique identifier (userId).
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user to retrieve.</param>
+    /// <returns>The user if found; otherwise, null.</returns>
+    Task<User?> GetUserByIdAsync(Guid userId);
 }

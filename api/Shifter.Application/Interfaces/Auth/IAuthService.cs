@@ -1,12 +1,26 @@
-﻿using Shifter.Core.Entities.Identity;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.AspNetCore.Identity;
+using Shifter.Application.DTOs.Identity;
+using Shifter.Core.Entities.Identity;
 
 namespace Shifter.Application.Interfaces.Auth;
 
 public interface IAuthService
 {
+    /// <summary>
+    /// Registers a new user with the provided registration request and returns the result of the registration process.
+    /// </summary>
+    /// <param name="request">The registration request containing user details.</param>
+    /// <returns>The result of the registration process.</returns>
+    Task<IdentityResult> RegisterAsync(RegisterRequest request);
+
+    /// <summary>
+    /// Confirms the email of a user with the specified user ID and token, returning the result of the confirmation process.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose email is to be confirmed.</param>
+    /// <param name="token">The email confirmation token.</param>
+    /// <returns>The result of the email confirmation process.</returns>
+    Task<IdentityResult> ConfirmEmailAsync(Guid userId, string token);
+
     /// <summary>
     /// Validates the user credentials and returns the user if valid, otherwise returns null.
     /// </summary>

@@ -6,6 +6,9 @@ namespace Shifter.Core.Entities.Identity;
 
 public class User : IdentityUser<Guid>
 {
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+
     public Role Role { get; set; } = Role.Employee;
 
     public Guid CompanyId { get; set; }
