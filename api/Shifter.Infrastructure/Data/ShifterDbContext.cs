@@ -30,10 +30,10 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
         modelBuilder.Entity<IdentityRole<Guid>>(b => b.ToTable("Roles"));
 
         // Apply global query filter for multi-tenancy to use the current company ID
-        var tenantId = _tenantService?.GetCompanyId() ?? Guid.Empty;
-        modelBuilder.Entity<EmployeeProfile>().HasQueryFilter(e => e.CompanyId == tenantId);
-        modelBuilder.Entity<WorkEvent>().HasQueryFilter(w => w.CompanyId == tenantId);
-        modelBuilder.Entity<User>().HasQueryFilter(u => u.CompanyId == tenantId);
+        //var tenantId = _tenantService?.GetCompanyId() ?? Guid.Empty;
+        modelBuilder.Entity<EmployeeProfile>().HasQueryFilter(e => e.CompanyId == _tenantService!.GetCompanyId());
+        modelBuilder.Entity<WorkEvent>().HasQueryFilter(w => w.CompanyId == _tenantService!.GetCompanyId());
+        modelBuilder.Entity<User>().HasQueryFilter(u => u.CompanyId == _tenantService!.GetCompanyId());
     }
 }
 

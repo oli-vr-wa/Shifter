@@ -31,7 +31,7 @@ public static class AuthEndpoints
     {
         // Ensure the token being used is an MFA challenge token and not a final JWT token
         var stage = userPrincipal.FindFirst("stage")?.Value;
-        if (stage != "mfa_authentication") return Results.BadRequest("Invalid token stage.");
+        if (stage != "mfa_verification") return Results.BadRequest("Invalid token stage.");
 
         // Extract the user ID from the claims
         var userIdStr = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;

@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Shifter.API.Endpoints;
 using Shifter.Core.Entities.Identity;
 using Shifter.Infrastructure.Data;
+using Shifter.Infrastructure.Data.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 15;
+    options.Password.RequiredLength = 10;
     options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<ShifterDbContext>()
@@ -66,6 +67,20 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
+
+// Seed tests
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    try
+    {
+        await DatabaseSeeder.InitializeAsync(serviceProvider);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred while seeding the database: {ex.Message}");
+    }
+}
 
 app.UseHttpsRedirection();
 

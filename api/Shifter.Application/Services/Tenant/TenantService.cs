@@ -18,7 +18,7 @@ public class TenantService : ITenantService
     public Guid GetCompanyId()
     {
         var user = _httpContextAccessor.HttpContext?.User;
-        var companyIdClaim = user?.FindFirst("companyId")?.Value;
+        var companyIdClaim = user?.FindFirst("CompanyId")?.Value;
 
         if (Guid.TryParse(companyIdClaim, out var companyId))        
             return companyId;
