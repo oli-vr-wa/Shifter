@@ -13,6 +13,7 @@ using Shifter.Application.DTOs.Identity;
 using Shifter.Application.Interfaces.Repositories.Core;
 using Shifter.Application.Interfaces.Repositories.CompanyRepos;
 using Shifter.Core.Entities.Tenant;
+using Shifter.Application.Interfaces.Repositories.Tenant;
 
 namespace Shifter.Application.Services.Auth;
 
@@ -20,12 +21,14 @@ public class AuthService(
     UserManager<User> userManager, 
     IConfiguration configuration,
     IUserRepository userRepository,
+    IUserProfileRepository userProfileRepository,
     ICompanyRepository companyRepository,
     IUnitOfWork unitOfWork) : IAuthService
 {
     private readonly UserManager<User> _userManager = userManager;
     private readonly IConfiguration _configuration = configuration;
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUserProfileRepository _userProfileRepository = userProfileRepository;
     private readonly ICompanyRepository _companyRepository = companyRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -50,8 +53,6 @@ public class AuthService(
             // Create User
             var user = new User
             {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
                 Email = request.Email,
                 UserName = request.Email,
                 CompanyId = company.Id,
@@ -60,6 +61,17 @@ public class AuthService(
 
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded) return result;
+
+            // Create the UserProfile for the user
+            var userProfile = new UserProfile
+            {
+                UserId = user.Id,
+                CompanyId = company.Id,
+                FirstName = request.FirstName,
+                LastName = request.LastName
+            };
+            await _userProfileRepository.Add(userProfile);
+            await _unitOfWork.CommitAsync();    
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
