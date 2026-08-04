@@ -32,21 +32,26 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
         // Configure Audit.NET to use the database for logging
         Audit.Core.Configuration.Setup()
             .UseEntityFramework(ef => ef
-               .AuditTypeMapper(t => typeof(AuditLog)) // Map all audit events to the AuditLog entity
-               .AuditEntityAction<AuditLog>((ev, entry, entity) =>
-               {
-                   entity.CompanyId = _tenantService.GetCompanyId();
-                   entity.EntityName = entry.EntityType.Name;
-                   entity.EntityId = entry.PrimaryKey.FirstOrDefault().Value?.ToString() ?? string.Empty;
-                   entity.Action = entry.Action;
-                   entity.UserProfileId = _tenantService.GetCurrentUserId();
-                   entity.CreatedAt = DateTime.UtcNow;
+                .AuditTypeMapper(t => typeof(AuditLog)) // Map all audit events to the AuditLog entity
+                .AuditEntityAction<AuditLog>((ev, entry, entity) =>
+                {
+                    entity.CompanyId = _tenantService.GetCompanyId();
+                    entity.EntityName = entry.EntityType.Name;
+                    entity.EntityId = entry.PrimaryKey.FirstOrDefault().Value?.ToString() ?? string.Empty;
+                    entity.Action = entry.Action;
+                    entity.UserProfileId = _tenantService.GetCurrentUserId();
+                    entity.CreatedAt = DateTime.UtcNow;
 
-                   entity.Changes = entry.Changes != null
+                    entity.Changes = entry.Changes != null
                         ? JsonSerializer.Serialize(entry.Changes)
                         : string.Empty;
-               })
-               .IgnoreMatchedProperties(true));            
+                })
+                .IgnoreMatchedProperties(true));
+
+        Audit.EntityFramework.Configuration.Setup()
+            .ForContext<ShifterDbContext>()
+            .UseOptOut()
+            .Ignore<AuditLog>();            
     }
 
     public DbSet<AuditLog> AuditLogs { get; set; } 
