@@ -20,8 +20,8 @@ content-type: application/json
 ###
 
 # 2. Verify Email
-@userId = 019fc20d-f494-7471-b43c-c9877e642436
-@token = CfDJ8GiIAepJg05Gkl+gqd8iy/napsxFECVQNqp9m7iKqKYejybZLLHkaIah2IrLmJvflmWsDJftZT+FUCNSjmRXycgVJRFYHNn6SG+B7UNarf7JLGeeYvmp6NKw5FU/YuL+csQxPwWqjR+eoIenxen4fYu6BkQ3X/1C1UigJb9P4/RyHt0uOeBy+pbO7MXrxID/EW+BXpi3A+kzZ0eGZnybR5aqtCBruKvs50LJFgxrQVrqVjfMaiNjCyW8E4lhj+89vA==
+@userId = PASTE_USER_ID_HERE
+@token = PASS_THE_TOKEN_FROM_EMAIL
 
 GET {{hostname}}/api/auth/verify-email?userId={{userId}}&token={{token}}
 
@@ -32,7 +32,7 @@ POST {{hostname}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
+  "email": "registerTest@example.com",
   "password": "SuperSecure1!"
 }
 
