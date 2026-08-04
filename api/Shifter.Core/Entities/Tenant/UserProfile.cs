@@ -3,7 +3,7 @@ using Shifter.Core.Entities.Identity;
 
 namespace Shifter.Core.Entities.Tenant;
 
-public class UserProfile : BaseEntity
+public class UserProfile : BaseEntity, IMultiTenant
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;

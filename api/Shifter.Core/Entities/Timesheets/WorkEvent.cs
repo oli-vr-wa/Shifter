@@ -1,9 +1,11 @@
 ﻿using Shifter.Core.Entities.Common;
+using Shifter.Core.Entities.Location;
 using Shifter.Core.Entities.Tenant;
+using Shifter.Core.Entities.Timesheets.Enums;
 
 namespace Shifter.Core.Entities.Timesheets;
 
-public class WorkEvent : BaseEntity
+public class WorkEvent : BaseEntity, IMultiTenant
 {
     public Guid EmployeeProfileId { get; set; }
     public UserProfile? EmployeeProfile { get; set; }
@@ -22,8 +24,16 @@ public class WorkEvent : BaseEntity
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 
-    // TODO: Implement Address Location entity and add a foreign key relationship here for the location of the work event.
+    public int? AddressId { get; set; }
+    public Address? Address { get; set; }
 
     public string? Notes { get; set; }
     public WorkEventStatus Status { get; set; }
+
+    // Tracking who assigned the work event and who created it. 
+    public Guid? AssignedToUserId { get; set; }
+    public UserProfile? AssignedToUser { get; set; }
+
+    public Guid CreatedByUserId { get; set; }
+    public UserProfile CreatedByUser { get; set; } = null!;
 }

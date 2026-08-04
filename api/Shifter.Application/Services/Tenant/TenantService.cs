@@ -1,20 +1,14 @@
 ﻿using Shifter.Application.Interfaces.Tenant;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Security.Claims;
 
 namespace Shifter.Application.Services.Tenant;
 
-public class TenantService : ITenantService
+public class TenantService(IHttpContextAccessor httpContextAccessor) : ITenantService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public TenantService(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
+    /// <inheritdoc />
     public Guid GetCompanyId()
     {
         var user = _httpContextAccessor.HttpContext?.User;
@@ -23,6 +17,16 @@ public class TenantService : ITenantService
         if (Guid.TryParse(companyIdClaim, out var companyId))        
             return companyId;
 
+        return Guid.Empty;
+    }
+
+    /// <inheritdoc />
+    public Guid GetCurrentUserId()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+        var userIdClaim = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (Guid.TryParse(userIdClaim, out var userId))
+            return userId;
         return Guid.Empty;
     }
 }

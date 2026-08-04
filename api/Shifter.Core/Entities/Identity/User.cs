@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Shifter.Core.Entities.Common;
 using Shifter.Core.Entities.Tenant;
 
 namespace Shifter.Core.Entities.Identity;
 
-public class User : IdentityUser<Guid>
+public class User : IdentityUser<Guid>, IMultiTenant
 {
     public Role Role { get; set; } = Role.Employee;
 
