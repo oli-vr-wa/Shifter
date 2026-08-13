@@ -80,7 +80,6 @@ public class WorkEventHistoryLogHandler(
             CreatedAt = DateTime.UtcNow,
             ActionPerformedAt = DateTime.UtcNow,
             ActionPerformedByUserId = _tenantService.GetCurrentUserId(),
-            CompanyId = _tenantService.GetCompanyId(),
             ActionPerformedAtAddressId = addressId
         };
     }

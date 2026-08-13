@@ -54,7 +54,6 @@ public class TimesheetService(
                     Type = WorkEventType.JobTask,
                     Title = request.Title,
                     Description = request.Description,
-                    CompanyId = _tenantService.GetCompanyId(),
                     CreatedByUserId = _tenantService.GetCurrentUserId(),
                     CreatedAt = DateTime.UtcNow,
                     AddressId = addressLocationId,
