@@ -1,6 +1,7 @@
 ﻿using Shifter.Application.DTOs.Timesheet;
 using Shifter.Application.Interfaces.Repositories.Core;
 using Shifter.Application.Interfaces.Repositories.Timesheets;
+using Shifter.Application.Interfaces.Services.Locations;
 using Shifter.Application.Interfaces.Services.Timesheets;
 using Shifter.Application.Interfaces.Tenant;
 using Shifter.Core.Entities.Common;
@@ -11,11 +12,13 @@ namespace Shifter.Application.Services.Timesheets;
 
 public class TimesheetService(
     IWorkEventHistoryLogHandler workEventHistoryLogHandler,
+    IAddressHandler addressHandler,
     IWorkEventRepository workEventRepository, 
     ITenantService tenantService,
     IUnitOfWork unitOfWork) : ITimesheetService
 {    
-    private readonly IWorkEventHistoryLogHandler _workEventHistoryLogHandler = workEventHistoryLogHandler;
+    private readonly IWorkEventHistoryLogHandler _workEventHistoryLogHandler = workEventHistoryLogHandler;    
+    private readonly IAddressHandler _addressHandler = addressHandler;
     private readonly IWorkEventRepository _workEventRepository = workEventRepository;
     private readonly ITenantService _tenantService = tenantService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -37,6 +40,10 @@ public class TimesheetService(
 
         using var transaction = await _unitOfWork.BeginTransactionAsync();
 
+        // If an address is provided, add or update it and get the AddressId
+        int? addressLocationId = request.Address != null ? await _addressHandler.AddOrUpdateAddressAsync(request.Address) : null;
+        int? actionPerformedAtAddressId = request.ActionPerformedAtAddress != null ? await _addressHandler.AddOrUpdateAddressAsync(request.ActionPerformedAtAddress) : null;
+
         try
         {
             if (workEvent == null)
@@ -50,17 +57,18 @@ public class TimesheetService(
                     CompanyId = _tenantService.GetCompanyId(),
                     CreatedByUserId = _tenantService.GetCurrentUserId(),
                     CreatedAt = DateTime.UtcNow,
+                    AddressId = addressLocationId,
                 };
 
                 await _workEventRepository.AddAsync(workEvent);
                 await _unitOfWork.CommitAsync();
-                await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Created);
+                await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Created, actionPerformedAtAddressId);
             }
 
             workEvent.ActualStartTime = request.ActualStartTime ?? DateTime.UtcNow;
             workEvent.Status = WorkEventStatus.Started;
             workEvent.LastUpdatedAt = DateTime.UtcNow;
-            await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Started);
+            await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Started, actionPerformedAtAddressId);
             await _unitOfWork.CommitAsync();
         }
         catch (Exception ex)
@@ -89,12 +97,14 @@ public class TimesheetService(
 
         using var transaction = await _unitOfWork.BeginTransactionAsync();
 
+        int? addressLocationId = request.ActionPerformedAtAddress != null ? await _addressHandler.AddOrUpdateAddressAsync(request.ActionPerformedAtAddress) : null;
+
         try
         {
             workEvent.ActualEndTime = request.ActualEndTime;
             workEvent.Status = WorkEventStatus.Completed;
             workEvent.LastUpdatedAt = DateTime.UtcNow;
-            await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Completed);
+            await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Completed, addressLocationId);
             await _unitOfWork.CommitAsync();
         }
         catch (Exception ex)

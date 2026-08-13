@@ -15,5 +15,7 @@ public class StartWorkEventTaskRequest
 
     public AddressDto? Address { get; set; }
 
+    public AddressDto? ActionPerformedAtAddress { get; set; }
+
     public string? Notes { get; set; }
 }

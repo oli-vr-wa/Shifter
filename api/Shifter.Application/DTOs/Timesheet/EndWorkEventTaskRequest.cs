@@ -7,6 +7,6 @@ public class EndWorkEventTaskRequest
     public Guid UserProfileId { get; set; }
     public Guid WorkEventId { get; set; }
     public DateTime ActualEndTime { get; set; }
-    public AddressDto? Address { get; set; }
+    public AddressDto? ActionPerformedAtAddress { get; set; }
     public string? Notes { get; set; }
 }
