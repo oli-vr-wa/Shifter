@@ -7,8 +7,8 @@ namespace Shifter.Core.Entities.Timesheets;
 
 public class WorkEvent : BaseEntity, IMultiTenant
 {
-    public Guid EmployeeProfileId { get; set; }
-    public UserProfile? EmployeeProfile { get; set; }
+    public Guid UserProfileId { get; set; }
+    public UserProfile? UserProfile { get; set; }
     public Guid CompanyId { get; set; }
 
     public WorkEventType Type { get; set; }
@@ -31,8 +31,8 @@ public class WorkEvent : BaseEntity, IMultiTenant
     public WorkEventStatus Status { get; set; }
 
     // Tracking who assigned the work event and who created it. 
-    public Guid? AssignedToUserId { get; set; }
-    public UserProfile? AssignedToUser { get; set; }
+    public Guid? AssignedByUserId { get; set; } // If null means the work event was created by the employee themselves.
+    public UserProfile? AssignedByUser { get; set; }
 
     public Guid CreatedByUserId { get; set; }
     public UserProfile CreatedByUser { get; set; } = null!;

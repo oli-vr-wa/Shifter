@@ -2,11 +2,14 @@
 
 namespace Shifter.Core.Entities.Location;
 
-public class Address : BaseEntity, IMultiTenant
+public class Address : IMultiTenant
 {
+    public int Id { get; set; } 
+
     public Guid CompanyId { get; set; } // Multi-tenant lock
 
     // Address Details
+    public string PlaceId { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public string StreetNumber { get; set; } = string.Empty;
     public string StreetName { get; set; } = string.Empty;
