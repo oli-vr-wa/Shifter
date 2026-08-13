@@ -12,6 +12,6 @@ public class WorkEventHistoryRepository(ShifterDbContext dbContext) : IWorkEvent
     private readonly ShifterDbContext _dbContext = dbContext;
 
     /// <inheritdoc />
-    public async Task AddWorkEventHistoryAsync(WorkEventHistory workEventHistory) =>
+    public async Task AddAsync(WorkEventHistory workEventHistory) =>
         await _dbContext.WorkEventHistories.AddAsync(workEventHistory);
 }

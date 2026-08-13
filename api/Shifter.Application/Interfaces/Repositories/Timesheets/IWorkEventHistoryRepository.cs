@@ -12,5 +12,5 @@ public interface IWorkEventHistoryRepository
     /// </summary>
     /// <param name="workEventHistory">The work event history record to add.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task AddAsyc(WorkEventHistory workEventHistory);
+    Task AddAsync(WorkEventHistory workEventHistory);
 }

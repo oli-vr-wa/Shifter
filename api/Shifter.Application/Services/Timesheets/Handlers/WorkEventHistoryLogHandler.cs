@@ -26,7 +26,7 @@ public class WorkEventHistoryLogHandler(
         var logEntry = InitializeWorkEventHistoryLog(status, description, addressLocationId);
         logEntry.WorkEventId = workEventId;
 
-        await _workEventHistoryRepository.AddAsyc(logEntry);
+        await _workEventHistoryRepository.AddAsync(logEntry);
     }
 
     /// <inheritdoc />
@@ -40,7 +40,7 @@ public class WorkEventHistoryLogHandler(
         var logEntry = InitializeWorkEventHistoryLog(status, description, addressLocationId);
         logEntry.BreakEventId = breakEventId;
 
-        await _workEventHistoryRepository.AddAsyc(logEntry);
+        await _workEventHistoryRepository.AddAsync(logEntry);
     }
 
     /// <summary>
