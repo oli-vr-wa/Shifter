@@ -91,21 +91,37 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
         }
     }
 
+    private void ApplyMultiTenancy()
+    {
+        var companyId = _tenantService.GetCompanyId();
+
+        foreach (var entry in ChangeTracker.Entries<IMultiTenant>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CompanyId = companyId;
+            }
+        }
+    }
+
     // Override all save methods to include audit logging
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        ApplyMultiTenancy();
         return await _dbContextHelper.SaveChangesAsync(_auditContext,
             () => base.SaveChangesAsync(cancellationToken));
     }
 
     public override int SaveChanges()
     {
+        ApplyMultiTenancy();
         return _dbContextHelper.SaveChanges(_auditContext,
             () => base.SaveChanges());
     }
 
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
+        ApplyMultiTenancy();
         return await _dbContextHelper.SaveChangesAsync(_auditContext,
             () => base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken));
     }

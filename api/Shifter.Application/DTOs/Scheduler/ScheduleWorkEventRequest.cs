@@ -1,7 +1,4 @@
 ﻿using Shifter.Application.DTOs.Location;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Shifter.Application.DTOs.Scheduler;
 

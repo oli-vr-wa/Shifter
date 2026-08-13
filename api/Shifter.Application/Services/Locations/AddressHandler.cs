@@ -2,18 +2,15 @@
 using Shifter.Application.Interfaces.Repositories.Core;
 using Shifter.Application.Interfaces.Repositories.Location;
 using Shifter.Application.Interfaces.Services.Locations;
-using Shifter.Application.Interfaces.Tenant;
 using Shifter.Core.Entities.Location;
 
 namespace Shifter.Application.Services.Locations;
 
 public class AddressHandler(
     IAddressRepository addressRepository, 
-    ITenantService tenantService,
     IUnitOfWork unitOfWork) : IAddressHandler
 {
     private readonly IAddressRepository _addressRepository = addressRepository;
-    private readonly ITenantService _tenantService = tenantService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <inheritdoc />
@@ -40,7 +37,6 @@ public class AddressHandler(
         {
             var address = new Address
             {
-                CompanyId = _tenantService.GetCompanyId(),
                 PlaceId = addressDto.PlaceId,
                 DisplayName = addressDto.DisplayName,
                 StreetNumber = addressDto.StreetNumber,
