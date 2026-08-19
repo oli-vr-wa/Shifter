@@ -266,9 +266,11 @@ namespace Shifter.Infrastructure.Migrations
 
             modelBuilder.Entity("Shifter.Core.Entities.Location.Address", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uuid");
@@ -277,21 +279,19 @@ namespace Shifter.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime?>("LastUpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<double?>("Latitude")
                         .HasColumnType("double precision");
 
                     b.Property<double?>("Longitude")
                         .HasColumnType("double precision");
+
+                    b.Property<string>("PlaceId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("PostCode")
                         .IsRequired()
@@ -378,6 +378,48 @@ namespace Shifter.Infrastructure.Migrations
                     b.ToTable("EmployeeProfiles");
                 });
 
+            modelBuilder.Entity("Shifter.Core.Entities.Timesheets.BreakEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserProfileId");
+
+                    b.ToTable("BreakEvent");
+                });
+
             modelBuilder.Entity("Shifter.Core.Entities.Timesheets.WorkEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -393,10 +435,7 @@ namespace Shifter.Infrastructure.Migrations
                     b.Property<int?>("AddressId")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("AddressId1")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AssignedToUserId")
+                    b.Property<Guid?>("AssignedByUserId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CompanyId")
@@ -411,9 +450,6 @@ namespace Shifter.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid>("EmployeeProfileId")
-                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -437,15 +473,18 @@ namespace Shifter.Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId1");
+                    b.HasIndex("AddressId");
 
-                    b.HasIndex("AssignedToUserId");
+                    b.HasIndex("AssignedByUserId");
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.HasIndex("EmployeeProfileId");
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("WorkEvents");
                 });
@@ -459,7 +498,13 @@ namespace Shifter.Infrastructure.Migrations
                     b.Property<DateTime>("ActionPerformedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("ActionPerformedAtAddressId")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("ActionPerformedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BreakEventId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CompanyId")
@@ -478,12 +523,16 @@ namespace Shifter.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("WorkEventId")
+                    b.Property<Guid?>("WorkEventId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ActionPerformedAtAddressId");
+
                     b.HasIndex("ActionPerformedByUserId");
+
+                    b.HasIndex("BreakEventId");
 
                     b.HasIndex("WorkEventId");
 
@@ -571,15 +620,26 @@ namespace Shifter.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Shifter.Core.Entities.Timesheets.BreakEvent", b =>
+                {
+                    b.HasOne("Shifter.Core.Entities.Tenant.UserProfile", "UserProfile")
+                        .WithMany()
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserProfile");
+                });
+
             modelBuilder.Entity("Shifter.Core.Entities.Timesheets.WorkEvent", b =>
                 {
                     b.HasOne("Shifter.Core.Entities.Location.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId1");
+                        .HasForeignKey("AddressId");
 
-                    b.HasOne("Shifter.Core.Entities.Tenant.UserProfile", "AssignedToUser")
+                    b.HasOne("Shifter.Core.Entities.Tenant.UserProfile", "AssignedByUser")
                         .WithMany()
-                        .HasForeignKey("AssignedToUserId");
+                        .HasForeignKey("AssignedByUserId");
 
                     b.HasOne("Shifter.Core.Entities.Tenant.UserProfile", "CreatedByUser")
                         .WithMany()
@@ -587,36 +647,46 @@ namespace Shifter.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Shifter.Core.Entities.Tenant.UserProfile", "EmployeeProfile")
+                    b.HasOne("Shifter.Core.Entities.Tenant.UserProfile", "UserProfile")
                         .WithMany()
-                        .HasForeignKey("EmployeeProfileId")
+                        .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Address");
 
-                    b.Navigation("AssignedToUser");
+                    b.Navigation("AssignedByUser");
 
                     b.Navigation("CreatedByUser");
 
-                    b.Navigation("EmployeeProfile");
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Shifter.Core.Entities.Timesheets.WorkEventHistory", b =>
                 {
+                    b.HasOne("Shifter.Core.Entities.Location.Address", "ActionPerformedAtAddress")
+                        .WithMany()
+                        .HasForeignKey("ActionPerformedAtAddressId");
+
                     b.HasOne("Shifter.Core.Entities.Tenant.UserProfile", "ActionPerformedByUser")
                         .WithMany()
                         .HasForeignKey("ActionPerformedByUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Shifter.Core.Entities.Timesheets.BreakEvent", "BreakEvent")
+                        .WithMany()
+                        .HasForeignKey("BreakEventId");
+
                     b.HasOne("Shifter.Core.Entities.Timesheets.WorkEvent", "WorkEvent")
                         .WithMany()
-                        .HasForeignKey("WorkEventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WorkEventId");
+
+                    b.Navigation("ActionPerformedAtAddress");
 
                     b.Navigation("ActionPerformedByUser");
+
+                    b.Navigation("BreakEvent");
 
                     b.Navigation("WorkEvent");
                 });

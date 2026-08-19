@@ -16,8 +16,10 @@ namespace Shifter.Infrastructure.Migrations
                 name: "Addresses",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CompanyId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PlaceId = table.Column<string>(type: "text", nullable: false),
                     DisplayName = table.Column<string>(type: "text", nullable: false),
                     StreetNumber = table.Column<string>(type: "text", nullable: false),
                     StreetName = table.Column<string>(type: "text", nullable: false),
@@ -26,9 +28,7 @@ namespace Shifter.Infrastructure.Migrations
                     State = table.Column<string>(type: "text", nullable: false),
                     Country = table.Column<string>(type: "text", nullable: false),
                     Latitude = table.Column<double>(type: "double precision", nullable: true),
-                    Longitude = table.Column<double>(type: "double precision", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    Longitude = table.Column<double>(type: "double precision", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -252,11 +252,37 @@ namespace Shifter.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BreakEvent",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsPaid = table.Column<bool>(type: "boolean", nullable: false),
+                    Notes = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BreakEvent", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BreakEvent_EmployeeProfiles_UserProfileId",
+                        column: x => x.UserProfileId,
+                        principalTable: "EmployeeProfiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "WorkEvents",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    EmployeeProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: false),
                     CompanyId = table.Column<Guid>(type: "uuid", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
                     ScheduledStartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -266,10 +292,9 @@ namespace Shifter.Infrastructure.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     AddressId = table.Column<int>(type: "integer", nullable: true),
-                    AddressId1 = table.Column<Guid>(type: "uuid", nullable: true),
                     Notes = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    AssignedToUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    AssignedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -278,13 +303,13 @@ namespace Shifter.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_WorkEvents", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WorkEvents_Addresses_AddressId1",
-                        column: x => x.AddressId1,
+                        name: "FK_WorkEvents_Addresses_AddressId",
+                        column: x => x.AddressId,
                         principalTable: "Addresses",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_WorkEvents_EmployeeProfiles_AssignedToUserId",
-                        column: x => x.AssignedToUserId,
+                        name: "FK_WorkEvents_EmployeeProfiles_AssignedByUserId",
+                        column: x => x.AssignedByUserId,
                         principalTable: "EmployeeProfiles",
                         principalColumn: "Id");
                     table.ForeignKey(
@@ -294,8 +319,8 @@ namespace Shifter.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_WorkEvents_EmployeeProfiles_EmployeeProfileId",
-                        column: x => x.EmployeeProfileId,
+                        name: "FK_WorkEvents_EmployeeProfiles_UserProfileId",
+                        column: x => x.UserProfileId,
                         principalTable: "EmployeeProfiles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -307,10 +332,12 @@ namespace Shifter.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CompanyId = table.Column<Guid>(type: "uuid", nullable: false),
-                    WorkEventId = table.Column<Guid>(type: "uuid", nullable: false),
+                    WorkEventId = table.Column<Guid>(type: "uuid", nullable: true),
+                    BreakEventId = table.Column<Guid>(type: "uuid", nullable: true),
                     ActionPerformedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     ActionPerformedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ActionPerformedAtAddressId = table.Column<int>(type: "integer", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -318,6 +345,16 @@ namespace Shifter.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkEventHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkEventHistories_Addresses_ActionPerformedAtAddressId",
+                        column: x => x.ActionPerformedAtAddressId,
+                        principalTable: "Addresses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_WorkEventHistories_BreakEvent_BreakEventId",
+                        column: x => x.BreakEventId,
+                        principalTable: "BreakEvent",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_WorkEventHistories_EmployeeProfiles_ActionPerformedByUserId",
                         column: x => x.ActionPerformedByUserId,
@@ -328,8 +365,7 @@ namespace Shifter.Infrastructure.Migrations
                         name: "FK_WorkEventHistories_WorkEvents_WorkEventId",
                         column: x => x.WorkEventId,
                         principalTable: "WorkEvents",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -351,6 +387,11 @@ namespace Shifter.Infrastructure.Migrations
                 name: "IX_AspNetUserRoles_RoleId",
                 table: "AspNetUserRoles",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BreakEvent_UserProfileId",
+                table: "BreakEvent",
+                column: "UserProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeProfiles_CompanyId",
@@ -386,9 +427,19 @@ namespace Shifter.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_WorkEventHistories_ActionPerformedAtAddressId",
+                table: "WorkEventHistories",
+                column: "ActionPerformedAtAddressId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_WorkEventHistories_ActionPerformedByUserId",
                 table: "WorkEventHistories",
                 column: "ActionPerformedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkEventHistories_BreakEventId",
+                table: "WorkEventHistories",
+                column: "BreakEventId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkEventHistories_WorkEventId",
@@ -396,14 +447,14 @@ namespace Shifter.Infrastructure.Migrations
                 column: "WorkEventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkEvents_AddressId1",
+                name: "IX_WorkEvents_AddressId",
                 table: "WorkEvents",
-                column: "AddressId1");
+                column: "AddressId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkEvents_AssignedToUserId",
+                name: "IX_WorkEvents_AssignedByUserId",
                 table: "WorkEvents",
-                column: "AssignedToUserId");
+                column: "AssignedByUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkEvents_CreatedByUserId",
@@ -411,9 +462,9 @@ namespace Shifter.Infrastructure.Migrations
                 column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkEvents_EmployeeProfileId",
+                name: "IX_WorkEvents_UserProfileId",
                 table: "WorkEvents",
-                column: "EmployeeProfileId");
+                column: "UserProfileId");
         }
 
         /// <inheritdoc />
@@ -442,6 +493,9 @@ namespace Shifter.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "BreakEvent");
 
             migrationBuilder.DropTable(
                 name: "WorkEvents");
