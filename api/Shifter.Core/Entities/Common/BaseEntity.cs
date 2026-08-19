@@ -1,7 +1,7 @@
 ﻿
 namespace Shifter.Core.Entities.Common
 {
-    public abstract class BaseEntity
+    public abstract class BaseEntity : IBaseEntity
     {
         public Guid Id { get; set; } = Guid.CreateVersion7();
 
