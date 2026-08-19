@@ -91,6 +91,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthEndpoints();
+app.MapEmployeesEndpoints();
 app.MapSchedulerEndpoints();
 app.MapTimesheetServiceEndpoints();
 

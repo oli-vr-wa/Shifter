@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Shifter.Application.Interfaces.Tenant;
 using Shifter.Core.Entities.Audit;
 using Shifter.Core.Entities.Common;
+using Shifter.Core.Entities.HumanResources;
 using Shifter.Core.Entities.Identity;
 using Shifter.Core.Entities.Location;
 using Shifter.Core.Entities.Tenant;
@@ -56,6 +57,7 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
 
     public DbSet<AuditLog> AuditLogs { get; set; } 
     public DbSet<UserProfile> EmployeeProfiles { get; set; }
+    public DbSet<Employee> Employees { get; set; }
     public DbSet<Company> Companies { get; set; }
     public DbSet<WorkEvent> WorkEvents { get; set; }
     public DbSet<WorkEventHistory> WorkEventHistories { get; set; }
@@ -104,17 +106,35 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
         }
     }
 
+    private void ApplyBaseEntityProperties()
+    {
+        var currentTime = DateTime.UtcNow;
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = currentTime;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.LastUpdatedAt = currentTime;
+            }
+        }
+    }
+
     // Override all save methods to include audit logging
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyMultiTenancy();
-        return await _dbContextHelper.SaveChangesAsync(_auditContext,
-            () => base.SaveChangesAsync(cancellationToken));
+        ApplyBaseEntityProperties();
+        return await _dbContextHelper.SaveChangesAsync(_auditContext, 
+            () => base.SaveChangesAsync(cancellationToken), cancellationToken);
     }
 
     public override int SaveChanges()
     {
         ApplyMultiTenancy();
+        ApplyBaseEntityProperties();
         return _dbContextHelper.SaveChanges(_auditContext,
             () => base.SaveChanges());
     }

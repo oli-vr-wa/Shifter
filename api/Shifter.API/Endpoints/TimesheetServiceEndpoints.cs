@@ -4,7 +4,7 @@ using Shifter.Application.Interfaces.Services.Timesheets;
 
 namespace Shifter.API.Endpoints;
 
-public static class TimesheetService
+public static class TimesheetServiceEndpoints
 {
     public static void MapTimesheetServiceEndpoints(this IEndpointRouteBuilder routes)
     {
