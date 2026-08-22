@@ -8,6 +8,7 @@ using Shifter.Core.Entities.Identity;
 using Shifter.Infrastructure.Data;
 using Shifter.Infrastructure.Data.Seed;
 using Shifter.Infrastructure.Repositories.Core;
+using Shifter.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ builder.Services.Scan(scan => scan
     .AsImplementedInterfaces()
     .WithScopedLifetime());
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddTransient<IEmailSender<IdentityUser>, IdentityEmailSender>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -90,6 +92,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapIdentityApi<IdentityUser>();
 app.MapAuthEndpoints();
 app.MapEmployeesEndpoints();
 app.MapSchedulerEndpoints();
