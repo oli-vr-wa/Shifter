@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Shifter.API.Endpoints;
 using Shifter.Application.Interfaces.Repositories.Core;
+using Shifter.Application.Interfaces.Services.Emails;
 using Shifter.Core.Entities.Identity;
 using Shifter.Infrastructure.Data;
 using Shifter.Infrastructure.Data.Seed;
@@ -18,11 +19,13 @@ builder.Services.Scan(scan => scan
         typeof(Shifter.Application.AssemblyReference).Assembly,
         typeof(Shifter.Infrastructure.AssemblyReference).Assembly)
     .AddClasses(classes => classes.Where(type =>
-        type.Name.EndsWith("Service") ||
-        type.Name.EndsWith("Repository")))
+        (type.Name.EndsWith("Service") && type.Name != "EmailService") ||
+        type.Name.EndsWith("Repository") ||
+        type.Name.EndsWith("Handler")))
     .AsImplementedInterfaces()
     .WithScopedLifetime());
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<IEmailSender<IdentityUser>, IdentityEmailSender>();
 
 builder.Services.AddHttpContextAccessor();
@@ -71,7 +74,20 @@ builder.Services.AddAuthorization();
 // Add endpoints
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReact", policy =>
+    {
+        // Must match your React origin perfectly (no trailing slash)
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowReact");
 
 // Seed tests
 //using (var scope = app.Services.CreateScope())

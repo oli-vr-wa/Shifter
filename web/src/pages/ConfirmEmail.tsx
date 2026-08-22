@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import shifterLogo from '@/assets/shifter-logo-v1.svg';
 import { useSearchParams } from "react-router";
 import { authService } from "@/features/auth";
@@ -7,9 +7,11 @@ import { Link } from "@/components";
 export default function ConfirmEmail() {
     const [searchParams] = useSearchParams();
     const [status, setStatus] = React.useState<'loading' | 'success' | 'error'>('loading');
+    const hasFetched = useRef(false);
 
     useEffect(() => {
         const confirmEmail = async () => {
+            if (hasFetched.current) return;
             const userId = searchParams.get('userId');
             const token = searchParams.get('token');
 
@@ -17,6 +19,8 @@ export default function ConfirmEmail() {
                 setStatus('error');
                 return;
             }
+
+            hasFetched.current = true;
 
             try {
                 const response = await authService.confirmEmail(userId, token);
