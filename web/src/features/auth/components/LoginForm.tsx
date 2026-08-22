@@ -1,58 +1,71 @@
-import { useState } from "react";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from "@tanstack/react-query";
 import { authService } from "../api/auth.service";
-import type { LoginRequest } from "../types";
+import { type LoginRequest, loginRequestSchema } from "../types";
+import { FormField, Button, Link } from "@/components"; 
 
 interface LoginFormProps {
     onSuccess: () => void;
+    onClickForgotPassword?: () => void;
+    onClickRegister?: () => void;
 }
 
-export const LoginForm = ({ onSuccess }: LoginFormProps) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+export const LoginForm = ({ onSuccess, onClickForgotPassword, onClickRegister }: LoginFormProps) => {
+
+    const defaultFormData: LoginRequest = {
+        email: '',
+        password: '',
+    };
+
+    const form = useForm<LoginRequest>({
+        resolver: zodResolver(loginRequestSchema),
+        defaultValues: defaultFormData,
+    });
 
     const {mutate: loginMutation, isPending} = useMutation({
         mutationFn: (data: LoginRequest) => authService.login(data),
         onSuccess: () => onSuccess(),
     });
 
-    const handleSubmit = (e: React.SubmitEvent) => {
-        e.preventDefault();
-        loginMutation({ email, password });
-    };
+    const handleSubmit = async (data: LoginRequest) => {
+        loginMutation(data);
+    }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-
-            <div className="flex flex-col">
-                <label htmlFor="email" className="mb-1 text-sm font-medium text-gray-700">Email:</label>
-                <input
+        <div className="grow w-full max-w-xl flex flex-col justify-center">
+            <h2 className="mb-3 text-left text-2xl font-bold text-gray-900">Welcome back</h2>
+            <p className="mb-10 text-left text-gray-600 text-sm">Please enter your credentials to access your account.</p>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col space-y-4">
+        
+                <FormField 
+                    label="Email"
                     type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                    placeholder="email@example.com"
+                    error={form.formState.errors.email?.message}
+                    {...form.register('email')}
                 />
-            </div>
-            <div className="flex flex-col">
-                <label htmlFor="password" className="mb-1 text-sm font-medium text-gray-700">Password:</label>
-                <input
+
+                <FormField
+                    label="Password"
                     type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
-                />
-            </div>
-            <button 
-                type="submit"
-                className="mt-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
-                disabled={isPending}
-                >
+                    placeholder="Enter your password"
+                    error={form.formState.errors.password?.message}
+                    {...form.register('password')}
+                />                
+
+                <div className="flex justify-end">
+                    <Link href="#" onClick={onClickForgotPassword}>Forgot password?</Link>
+                </div>
+
+                <Button type="submit" disabled={isPending} >
                     {isPending ? 'Logging in...' : 'Login'}
-            </button>
-        </form>
+                </Button>
+
+            </form>
+            
+            <hr className="my-10 border-gray-300" />
+            <p className="text-center text-gray-600 text-sm">Don't have an account? <Link href="#" onClick={onClickRegister}>Start your free trial.</Link></p>
+        </div>
     );
 };
