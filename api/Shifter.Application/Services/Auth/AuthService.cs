@@ -78,7 +78,7 @@ public class AuthService(
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token); // Encode the token to make it URL-safe
-            var confirmationLink = $"https://localhost:3000/confirmEmail?userId={user.Id}&code={encodedToken}";
+            var confirmationLink = $"https://localhost:3000/confirm-email?userId={user.Id}&code={encodedToken}";
 
             Debug.WriteLine($"User Id: {user.Id}");
             Debug.WriteLine($"Email confirmation token for {user.Email}: {token}");
