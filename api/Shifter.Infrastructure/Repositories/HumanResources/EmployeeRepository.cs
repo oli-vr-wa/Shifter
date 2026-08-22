@@ -3,13 +3,10 @@ using Shifter.Application.DTOs.HumanResources;
 using Shifter.Application.Interfaces.Repositories.HumanResources;
 using Shifter.Core.Entities.HumanResources;
 using Shifter.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Shifter.Infrastructure.Repositories.HumanResources;
 
-internal class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
+public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
 {
     private readonly ShifterDbContext _context = context;
 

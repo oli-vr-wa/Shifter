@@ -4,4 +4,5 @@ import { type LoginRequest, type LoginResponse, type RegisterRequest } from "@/f
 export const authService = {
     login: (data: LoginRequest) => apiClient.post<LoginResponse>("/auth/login", data),
     register: (data: RegisterRequest) => apiClient.post("/auth/register", data),
+    confirmEmail: (userId: string, token: string) => apiClient.get("/auth/verify-email", { params: { userId, token } }),
 };

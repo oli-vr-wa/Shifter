@@ -1,19 +1,20 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Shifter.Application.DTOs.Identity;
+using Shifter.Application.Interfaces.Auth;
+using Shifter.Application.Interfaces.Repositories.CompanyRepos;
+using Shifter.Application.Interfaces.Repositories.Core;
+using Shifter.Application.Interfaces.Repositories.Identity;
+using Shifter.Application.Interfaces.Repositories.Tenant;
+using Shifter.Application.Interfaces.Services.Emails;
 using Shifter.Core.Entities.Identity;
+using Shifter.Core.Entities.Tenant;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Web;
-using System.Diagnostics;
-using Shifter.Application.Interfaces.Auth;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Shifter.Application.Interfaces.Repositories.Identity;
-using Shifter.Application.DTOs.Identity;
-using Shifter.Application.Interfaces.Repositories.Core;
-using Shifter.Application.Interfaces.Repositories.CompanyRepos;
-using Shifter.Core.Entities.Tenant;
-using Shifter.Application.Interfaces.Repositories.Tenant;
 
 namespace Shifter.Application.Services.Auth;
 
@@ -23,6 +24,7 @@ public class AuthService(
     IUserRepository userRepository,
     IUserProfileRepository userProfileRepository,
     ICompanyRepository companyRepository,
+    IEmailService emailService,
     IUnitOfWork unitOfWork) : IAuthService
 {
     private readonly UserManager<User> _userManager = userManager;
@@ -30,6 +32,7 @@ public class AuthService(
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserProfileRepository _userProfileRepository = userProfileRepository;
     private readonly ICompanyRepository _companyRepository = companyRepository;
+    private readonly IEmailService _emailService = emailService; 
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <inheritdoc />
@@ -74,11 +77,16 @@ public class AuthService(
             await _unitOfWork.CommitAsync();    
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedToken = Uri.EscapeDataString(token); // Encode the token to make it URL-safe
+            var confirmationLink = $"https://localhost:3000/confirm-email?userId={user.Id}&code={encodedToken}";
 
-            // TODO: Send the token to the user's email for confirmation. This is a placeholder for actual email sending logic.
-            // For now as we do not have email service, we will just log the token to the console for testing purposes.
             Debug.WriteLine($"User Id: {user.Id}");
             Debug.WriteLine($"Email confirmation token for {user.Email}: {token}");
+
+            string subject = "Confirm your Shifter Account";
+            string body = $"Welcome to Shifter! Please confirm your account by clicking the following link: <a href='{confirmationLink}'>Confirm Account</a>";
+
+            await _emailService.SendAsync(user.Email, subject, body);
 
             await transaction.CommitAsync();
             return IdentityResult.Success;

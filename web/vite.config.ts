@@ -9,16 +9,15 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  server: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'https://localhost:7176',
-        changeOrigin: true,
-        secure: false
-      }
-    }
-  },
+  // server: {
+  //   proxy: {
+  //     '/api': {
+  //       target: 'https://localhost:7176',
+  //       changeOrigin: true,
+  //       secure: false
+  //     }
+  //   }
+  // },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src')
