@@ -1,5 +1,5 @@
 ﻿
 namespace Shifter.Application.DTOs.Identity;
 
-public record LoginResponse(string Token);
+public record LoginResponse(string AccessToken);
 

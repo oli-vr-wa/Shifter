@@ -13,6 +13,7 @@ using Shifter.Infrastructure.Data.Seed;
 using Shifter.Infrastructure.Repositories.Core;
 using Shifter.Infrastructure.Services;
 using Shifter.API.Handlers;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,9 +89,32 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSecret))
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.TryGetValue("accessToken", out var token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options => 
+{ 
+    options.AddPolicy("MfaPendingOnly", policy => policy.RequireClaim("stage", "mfa_verification"));
+
+    // Default policy requires users to be fully authenticated this avoids using MFA token anywhere else in the application
+    var fullyAthenticatedPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .RequireClaim("stage", "fully_authenticated")
+        .Build();
+    
+    options.DefaultPolicy = fullyAthenticatedPolicy;
+    options.FallbackPolicy = fullyAthenticatedPolicy;
+});
 
 // Add endpoints
 builder.Services.AddEndpointsApiExplorer();
@@ -102,7 +126,8 @@ builder.Services.AddCors(options =>
         // Must match your React origin perfectly (no trailing slash)
         policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 

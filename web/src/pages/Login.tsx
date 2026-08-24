@@ -4,13 +4,17 @@ import shifterLogo from '@/assets/shifter-logo-v1.svg';
 import shifterLoginImage from '@/assets/login-page-image.png';
 import { useState } from 'react';
 import { RegistrationCompleted } from '@/features/auth/components/RegistrationCompleted';
+import type { LoginResponse } from '@/features/auth/types';
+import { TwoFactorAuthForm } from '@/features/auth/components/TwoFactorAuthForm';
 
 export default function Login() {
-    const [currentView, setCurrentView] = useState<'login' | 'forgotPassword' | 'register' | 'registrationCompleted'>('login');
+    const [currentView, setCurrentView] = useState<'login' | 'twoFactorAuth' | 'forgotPassword' | 'register' | 'registrationCompleted'>('login');
+    const [loginResponse, setLoginResponse] = useState<LoginResponse | null>(null);
     const navigate = useNavigate();
 
-    const handleLoginSuccess = () => {
-        navigate("/dashboard");
+    const handleLoginSuccess = (response : LoginResponse) => {
+        setLoginResponse(response);
+        setCurrentView('twoFactorAuth');        
     };
 
     const handleRegisterSuccess = () => {
@@ -58,7 +62,11 @@ export default function Login() {
                     <RegisterForm onSuccess={handleRegisterSuccess} onClickLogin={() => setCurrentView('login')} />
                 ) : currentView === 'registrationCompleted' ? (
                     <RegistrationCompleted />
-                ) : null}
+                ) : currentView === 'twoFactorAuth' && loginResponse ? (
+                    <TwoFactorAuthForm onSuccess={() => navigate('/dashboard')} loginResponse={loginResponse} />
+                ) : (
+                    <div className="text-center text-gray-600 text-sm">Forgot Password functionality is not implemented yet.</div>
+                )}
 
                 <div className="w-full bottom-6 left-6 sm:left-12 text-gray-400 text-sm mt-5">
                     &copy; {new Date().getFullYear()} Shifter Pty Ltd. All rights reserved.

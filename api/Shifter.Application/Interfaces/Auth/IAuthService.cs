@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Shifter.Application.DTOs.Identity;
 using Shifter.Core.Entities.Identity;
 
@@ -42,5 +43,40 @@ public interface IAuthService
     /// </summary>
     /// <param name="user">The user for whom to generate the MFA token.</param>
     /// <returns>The generated MFA token.</returns>
-    string GenerateMfaToken(User user);    
+    string GenerateMfaToken(User user);
+
+    /// <summary>
+    /// Checks if multi-factor authentication (MFA) is enabled for the specified user.
+    /// </summary>
+    /// <param name="user">The user for whom to check if MFA is enabled.</param>
+    /// <returns>True if MFA is enabled for the user, otherwise false.</returns>
+    Task<bool> IsTwoFactorEnabledAsync(User user);
+
+    /// <summary>
+    /// Generates a QR code URI for the specified user and unformatted key, which can be used for setting up multi-factor authentication (MFA) in an authenticator app.
+    /// </summary>
+    /// <param name="user">The user for whom to generate the QR code URI.</param>
+    /// <param name="unformattedKey">The unformatted key to use for generating the QR code URI.</param>
+    /// <returns>The generated QR code URI if successful, otherwise null.</returns>
+    Task<string?> GenerateQrCodeUri(User user, string? unformattedKey);
+
+    /// <summary>
+    /// Retrieves the authenticator key for the specified user, which can be used for setting up multi-factor authentication (MFA) in an authenticator app.
+    /// </summary>
+    /// <param name="user">The user for whom to retrieve the authenticator key.</param>
+    /// <param name="isTwoFactorEnabled">Indicates whether two-factor authentication is enabled for the user.</param>
+    /// <returns>The authenticator key if available, otherwise null.</returns>
+    Task<string?> GetAuthenticatorKeyAsync(User user, bool isTwoFactorEnabled);
+
+    /// <summary>
+    /// Configures and returns the cookie options for authentication cookies, including settings such as expiration, security, and SameSite policy.
+    /// </summary>
+    /// <returns>The configured cookie options.</returns>
+    CookieOptions ConfigureCookieOptions();
+
+    /// <summary>
+    /// Retrieves the user response DTO (Data Transfer Object) containing user information such as ID, first name, last name, and email.
+    /// </summary>
+    /// <returns>The user response DTO.</returns>
+    Task<UserResponse?> GetCurrentUserAsync(Guid userId);
 }
