@@ -1,3 +1,7 @@
 export interface LoginResponse {
-    token: string;
+    requiresMfa: boolean;
+    mfaToken: string;
+    setupRequired: boolean;
+    manualEntryKey?: string | null;
+    qrCodeUri?: string | null;
 }

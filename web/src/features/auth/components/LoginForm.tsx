@@ -3,10 +3,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from "@tanstack/react-query";
 import { authService } from "../api/auth.service";
 import { type LoginRequest, loginRequestSchema } from "../types";
+import type { LoginResponse } from "../types";
 import { FormField, Button, Link } from "@/components"; 
+import type { AxiosError } from 'axios';
 
 interface LoginFormProps {
-    onSuccess: () => void;
+    onSuccess: (response: LoginResponse) => void;
     onClickForgotPassword?: () => void;
     onClickRegister?: () => void;
 }
@@ -23,9 +25,15 @@ export const LoginForm = ({ onSuccess, onClickForgotPassword, onClickRegister }:
         defaultValues: defaultFormData,
     });
 
-    const {mutate: loginMutation, isPending} = useMutation({
+    const { mutate: loginMutation, isPending } = useMutation({
         mutationFn: (data: LoginRequest) => authService.login(data),
-        onSuccess: () => onSuccess(),
+        onSuccess: (response: LoginResponse) => onSuccess(response),
+        onError: (error: AxiosError<{message?: string } | string>) => {
+            const errorMessage = typeof error.response?.data === 'string'
+                ? error.response.data
+                : error.response?.data?.message || 'Invalid email or password.';
+            form.setError('root', { type: 'server', message: errorMessage }); 
+        }
     });
 
     const handleSubmit = async (data: LoginRequest) => {

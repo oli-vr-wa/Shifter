@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Shifter.Application.DTOs.Identity;
@@ -11,7 +12,6 @@ using Shifter.Application.Interfaces.Services.Emails;
 using Shifter.Application.Interfaces.Tenant.Handlers;
 using Shifter.Core.Entities.Identity;
 using Shifter.Core.Entities.Tenant;
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -128,12 +128,18 @@ public class AuthService(
 
         // TODO: Remove this bypass in production. This is only for testing purposes.
         // Bypass MFA verification for testing purposes if the code is "123456"
-        if (code == "123456")
-        {
-            isValid = true;
-        }
+        //if (code == "123456")
+        //{
+        //    isValid = true;
+        //}
 
         if (!isValid) return null;
+
+        // If the Two factor is not enabled, enable it now
+        if (!await _userManager.GetTwoFactorEnabledAsync(user))
+        {
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
+        }
 
         // Generate and return the final JWT token
         var claims = new[]
@@ -141,7 +147,9 @@ public class AuthService(
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email!),
             new Claim("CompanyId", user.CompanyId.ToString()),
+            new Claim("stage", "fully_authenticated")
         };
+
         return CreateToken(claims, DateTime.UtcNow.AddDays(1));
     }
 
@@ -156,6 +164,59 @@ public class AuthService(
         };
 
         return CreateToken(claims, DateTime.UtcNow.AddMinutes(5));
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> IsTwoFactorEnabledAsync(User user)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        return await _userManager.GetTwoFactorEnabledAsync(user);
+    }
+
+    /// <inheritdoc />
+    public async Task<string?> GetAuthenticatorKeyAsync(User user, bool isTwoFactorEnabled)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+
+        // Only get a new authenticator key if two-factor authentication is not enabled. If it is enabled, return the existing key.
+        if (!isTwoFactorEnabled) 
+            await _userManager.ResetAuthenticatorKeyAsync(user);
+        var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+        return unformattedKey;
+    }
+
+    /// <inheritdoc />
+    public async Task<string?> GenerateQrCodeUri(User user, string? unformattedKey)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+
+        var encodedEmail = Uri.EscapeDataString(user.Email!);
+        return $"otpauth://totp/Shifter:{encodedEmail}?secret={unformattedKey}&issuer=Shifter";
+    }
+
+    /// <inheritdoc />
+    public CookieOptions ConfigureCookieOptions()
+    {
+        return new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(1)
+        };
+    }
+    
+    /// <inheritdoc />
+    public async Task<UserResponse?> GetCurrentUserAsync(Guid id)
+    {
+        var user = await _userRepository.GetUserByIdAsync(id);
+        if (user == null) return null;
+        return new UserResponse(
+            user.Id,
+            user.EmployeeProfile!.FirstName,
+            user.EmployeeProfile.LastName,
+            user.Email!
+        );
     }
 
     /// <summary>
@@ -181,5 +242,5 @@ public class AuthService(
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+    }    
 }

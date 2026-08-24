@@ -22,6 +22,7 @@ public class UserRepository(ShifterDbContext context) : IUserRepository
     {
         return await _context.Users
             .IgnoreQueryFilters()
+            .Include(u => u.EmployeeProfile)
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
 }

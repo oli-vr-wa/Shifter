@@ -1,8 +1,4 @@
 ﻿using Shifter.Application.Interfaces.Services.Emails;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 namespace Shifter.Infrastructure.Services;
 
