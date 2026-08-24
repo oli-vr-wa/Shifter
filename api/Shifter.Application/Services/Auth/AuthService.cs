@@ -8,13 +8,13 @@ using Shifter.Application.Interfaces.Repositories.Core;
 using Shifter.Application.Interfaces.Repositories.Identity;
 using Shifter.Application.Interfaces.Repositories.Tenant;
 using Shifter.Application.Interfaces.Services.Emails;
+using Shifter.Application.Interfaces.Tenant.Handlers;
 using Shifter.Core.Entities.Identity;
 using Shifter.Core.Entities.Tenant;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Web;
 
 namespace Shifter.Application.Services.Auth;
 
@@ -24,6 +24,7 @@ public class AuthService(
     IUserRepository userRepository,
     IUserProfileRepository userProfileRepository,
     ICompanyRepository companyRepository,
+    ICompanyHandler companyHandler,
     IEmailService emailService,
     IUnitOfWork unitOfWork) : IAuthService
 {
@@ -32,6 +33,7 @@ public class AuthService(
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserProfileRepository _userProfileRepository = userProfileRepository;
     private readonly ICompanyRepository _companyRepository = companyRepository;
+    private readonly ICompanyHandler _companyHandler = companyHandler;
     private readonly IEmailService _emailService = emailService; 
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -43,45 +45,42 @@ public class AuthService(
         try
         {
             if (request.Password != request.ConfirmPassword) throw new ArgumentException("Passwords do not match.");
-
+            
             // Create Company
             var company = new Company
             {
                 Name = request.CompanyName,
-                Abn = request.CompanyAbn
+                Abn = _companyHandler.FormatAbn(request.CompanyAbn)
             };
-            await _companyRepository.AddCompanyAsync(company);
-            await _unitOfWork.CommitAsync();
-
-            // Create User
-            var user = new User
-            {
-                Email = request.Email,
-                UserName = request.Email,
-                CompanyId = company.Id,
-                Role = Role.CompanyOwner
-            };
-
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (!result.Succeeded) return result;
 
             // Create the UserProfile for the user
             var userProfile = new UserProfile
             {
-                UserId = user.Id,
-                CompanyId = company.Id,
                 FirstName = request.FirstName,
-                LastName = request.LastName
+                LastName = request.LastName,                
+                Company = company
             };
-            await _userProfileRepository.Add(userProfile);
-            await _unitOfWork.CommitAsync();    
+
+            // Create User
+            var user = new User
+            {
+                Id = Guid.CreateVersion7(),
+                Email = request.Email,
+                UserName = request.Email,                
+                Role = Role.CompanyOwner,
+                Company = company,
+                EmployeeProfile = userProfile
+            };
+
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (!result.Succeeded) return result;   
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token); // Encode the token to make it URL-safe
-            var confirmationLink = $"https://localhost:3000/confirm-email?userId={user.Id}&code={encodedToken}";
+            var confirmationLink = $"https://localhost:5173/confirm-email?userId={user.Id}&token={encodedToken}";
 
-            Debug.WriteLine($"User Id: {user.Id}");
-            Debug.WriteLine($"Email confirmation token for {user.Email}: {token}");
+            Console.WriteLine($"User Id: {user.Id}");
+            Console.WriteLine($"Email confirmation token for {user.Email}: {token}");
 
             string subject = "Confirm your Shifter Account";
             string body = $"Welcome to Shifter! Please confirm your account by clicking the following link: <a href='{confirmationLink}'>Confirm Account</a>";

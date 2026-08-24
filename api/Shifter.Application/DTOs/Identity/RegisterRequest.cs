@@ -8,5 +8,5 @@ public record RegisterRequest(
     string Password,
     string ConfirmPassword,
     string CompanyName,
-    int CompanyAbn
+    string CompanyAbn
 );

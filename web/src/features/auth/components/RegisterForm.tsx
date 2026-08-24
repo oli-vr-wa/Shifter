@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { authService } from "../api/auth.service";
 import { type RegisterRequest, registerRequestSchema } from "../types";
 import { Button, Link, FormField } from "@/components";
@@ -14,7 +15,9 @@ interface RegisterFormProps {
 type FormInput = z.input<typeof registerRequestSchema>;
 type FormOutput = z.output<typeof registerRequestSchema>;
 
-export const RegisterForm = ({ onSuccess, onClickLogin }: RegisterFormProps) => {
+export const RegisterForm = ({ onSuccess, onClickLogin }: RegisterFormProps) => {    
+    const [error, setError] = useState<string | null>(null);
+
     const defaultFormData: RegisterRequest = {
         firstName: '',
         lastName: '',
@@ -33,6 +36,9 @@ export const RegisterForm = ({ onSuccess, onClickLogin }: RegisterFormProps) => 
     const { mutate: registerMutation, isPending } = useMutation({
         mutationFn: (data: RegisterRequest) => authService.register(data),
         onSuccess: () => onSuccess(),
+        onError: (error: any) => {
+            setError(error instanceof Error ? error.message : String(error));
+        }
     });
 
     const handleSubmit = async (data: FormOutput) => {
@@ -104,6 +110,8 @@ export const RegisterForm = ({ onSuccess, onClickLogin }: RegisterFormProps) => 
                 <Button type="submit" disabled={isPending}>
                     {isPending ? 'Registering...' : 'Register'}
                 </Button>
+
+                {error && <p className="text-red-500 text-sm">{error}</p>}
 
             </form>
             <hr className="my-5 border-gray-300" />

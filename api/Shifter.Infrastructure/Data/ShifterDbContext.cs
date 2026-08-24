@@ -3,6 +3,7 @@ using Audit.EntityFramework;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Shifter.Application.Interfaces.Tenant;
 using Shifter.Core.Entities.Audit;
 using Shifter.Core.Entities.Common;
@@ -23,38 +24,16 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
     private readonly IAuditDbContext _auditContext;
     // _dbContextHelper to assist with saving changes and handling audit logs using Audit.NET.
     private readonly DbContextHelper _dbContextHelper = new DbContextHelper();
+    private bool _isSavingAuditLogs = false;
 
     public ShifterDbContext(DbContextOptions<ShifterDbContext> options, ITenantService? tenantService)
         : base(options)
     {
         _auditContext = new DefaultAuditContext(this);
-        _tenantService = tenantService!;
-
-        // Configure Audit.NET to use the database for logging
-        Audit.Core.Configuration.Setup()
-            .UseEntityFramework(ef => ef
-                .AuditTypeMapper(t => typeof(AuditLog)) // Map all audit events to the AuditLog entity
-                .AuditEntityAction<AuditLog>((ev, entry, entity) =>
-                {
-                    entity.CompanyId = _tenantService.GetCompanyId();
-                    entity.EntityName = entry.EntityType.Name;
-                    entity.EntityId = entry.PrimaryKey.FirstOrDefault().Value?.ToString() ?? string.Empty;
-                    entity.Action = entry.Action;
-                    entity.UserProfileId = _tenantService.GetCurrentUserId();
-                    entity.CreatedAt = DateTime.UtcNow;
-
-                    entity.Changes = entry.Changes != null
-                        ? JsonSerializer.Serialize(entry.Changes)
-                        : string.Empty;
-                })
-                .IgnoreMatchedProperties(true));
-
-        Audit.EntityFramework.Configuration.Setup()
-            .ForContext<ShifterDbContext>()
-            .UseOptOut()
-            .Ignore<AuditLog>();            
+        _tenantService = tenantService!;           
     }
 
+    [AuditIgnore]
     public DbSet<AuditLog> AuditLogs { get; set; } 
     public DbSet<UserProfile> EmployeeProfiles { get; set; }
     public DbSet<Employee> Employees { get; set; }
@@ -70,10 +49,22 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
 
         modelBuilder.Entity<User>(b => b.ToTable("Users"));
         modelBuilder.Entity<IdentityRole<Guid>>(b => b.ToTable("Roles"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShifterDbContext).Assembly);
 
         // Apply global query filter for multi-tenancy to use the current company ID>
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
+            var primaryKey = entityType.FindPrimaryKey();
+
+            if (primaryKey != null && primaryKey.Properties.Count == 1)
+            {
+                var pkProperty = primaryKey.Properties[0];
+                if (pkProperty.ClrType == typeof(Guid))
+                {
+                    pkProperty.ValueGenerated = ValueGenerated.Never;
+                }
+            }
+
             if (typeof(IMultiTenant).IsAssignableFrom(entityType.ClrType))
             {
                 // Create a parameter for the entity type
@@ -99,7 +90,7 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
 
         foreach (var entry in ChangeTracker.Entries<IMultiTenant>())
         {
-            if (entry.State == EntityState.Added)
+            if (entry.State == EntityState.Added && companyId != Guid.Empty)
             {
                 entry.Entity.CompanyId = companyId;
             }
@@ -123,27 +114,54 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
     }
 
     // Override all save methods to include audit logging
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+        await ExecuteSaveChangesWithAuditAsync(() => base.SaveChangesAsync(cancellationToken), cancellationToken);    
+
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) =>
+        await ExecuteSaveChangesWithAuditAsync(() => base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken), cancellationToken);
+
+    public override int SaveChanges() => ExecuteSaveChangesWithAudit(() => base.SaveChanges());
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess) =>
+        ExecuteSaveChangesWithAudit(() => base.SaveChanges(acceptAllChangesOnSuccess));
+
+
+    private async Task<int> ExecuteSaveChangesWithAuditAsync(Func<Task<int>> saveChangesFunc, CancellationToken cancellationToken)
     {
-        ApplyMultiTenancy();
-        ApplyBaseEntityProperties();
-        return await _dbContextHelper.SaveChangesAsync(_auditContext, 
-            () => base.SaveChangesAsync(cancellationToken), cancellationToken);
+        if (_isSavingAuditLogs)
+        {
+            return await saveChangesFunc();
+        }
+        try
+        {
+            _isSavingAuditLogs = true;
+            ApplyMultiTenancy();
+            ApplyBaseEntityProperties();
+            return await _dbContextHelper.SaveChangesAsync(_auditContext, saveChangesFunc, cancellationToken);
+        }
+        finally
+        {
+            _isSavingAuditLogs = false;
+        }
     }
 
-    public override int SaveChanges()
+    private int ExecuteSaveChangesWithAudit(Func<int> saveChangesFunc)
     {
-        ApplyMultiTenancy();
-        ApplyBaseEntityProperties();
-        return _dbContextHelper.SaveChanges(_auditContext,
-            () => base.SaveChanges());
-    }
-
-    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-    {
-        ApplyMultiTenancy();
-        return await _dbContextHelper.SaveChangesAsync(_auditContext,
-            () => base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken));
+        if (_isSavingAuditLogs)
+        {
+            return saveChangesFunc();
+        }
+        try
+        {
+            _isSavingAuditLogs = true;
+            ApplyMultiTenancy();
+            ApplyBaseEntityProperties();
+            return _dbContextHelper.SaveChanges(_auditContext, saveChangesFunc);
+        }
+        finally
+        {
+            _isSavingAuditLogs = false;
+        }
     }
 }
 

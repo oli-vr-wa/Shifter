@@ -16,5 +16,5 @@ public interface ICompanyRepository
     /// </summary>
     /// <param name="abn">The ABN of the company to check.</param>
     /// <returns>True if the company exists; otherwise, false.</returns>
-    bool IsCompanyExists(int abn);
+    bool IsCompanyExists(string abn);
 }

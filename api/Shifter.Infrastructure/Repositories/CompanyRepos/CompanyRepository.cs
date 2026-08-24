@@ -12,7 +12,7 @@ public class CompanyRepository(ShifterDbContext dbContext) : ICompanyRepository
     public async Task AddCompanyAsync(Company company)
     {
         if (company == null) throw new ArgumentNullException(nameof(company), "Company cannot be null.");
-        if (company.Abn <= 0) throw new ArgumentOutOfRangeException(nameof(company.Abn), "ABN must be provided");
+        if (string.IsNullOrEmpty(company.Abn)) throw new ArgumentOutOfRangeException(nameof(company.Abn), "ABN must be provided");
         if (company.Name == null) throw new ArgumentNullException(nameof(company.Name), "Company name must be provided");
 
         if (IsCompanyExists(company.Abn))
@@ -24,7 +24,7 @@ public class CompanyRepository(ShifterDbContext dbContext) : ICompanyRepository
     }
    
     /// <inheritdoc/>
-    public bool IsCompanyExists(int abn)
+    public bool IsCompanyExists(string abn)
     {
         return _dbContext.Companies.Any(c => c.Abn == abn);
     }
