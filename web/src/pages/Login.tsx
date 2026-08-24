@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import shifterLogo from '@/assets/shifter-logo-v1.svg';
 import shifterLoginImage from '@/assets/login-page-image.png';
 import { useState } from 'react';
+import { RegistrationCompleted } from '@/features/auth/components/RegistrationCompleted';
 
 export default function Login() {
-    const [currentView, setCurrentView] = useState<'login' | 'forgotPassword' | 'register'>('login');
+    const [currentView, setCurrentView] = useState<'login' | 'forgotPassword' | 'register' | 'registrationCompleted'>('login');
     const navigate = useNavigate();
 
     const handleLoginSuccess = () => {
@@ -13,7 +14,7 @@ export default function Login() {
     };
 
     const handleRegisterSuccess = () => {
-        navigate("/dashboard");
+        setCurrentView('registrationCompleted');
     }
 
     const handleForgotPasswordClick = () => {
@@ -55,6 +56,8 @@ export default function Login() {
                     <LoginForm onSuccess={handleLoginSuccess} onClickForgotPassword={handleForgotPasswordClick} onClickRegister={handleRegisterClick} />
                 ) : currentView === 'register' ? (
                     <RegisterForm onSuccess={handleRegisterSuccess} onClickLogin={() => setCurrentView('login')} />
+                ) : currentView === 'registrationCompleted' ? (
+                    <RegistrationCompleted />
                 ) : null}
 
                 <div className="w-full bottom-6 left-6 sm:left-12 text-gray-400 text-sm mt-5">

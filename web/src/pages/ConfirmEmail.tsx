@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import shifterLogo from '@/assets/shifter-logo-v1.svg';
 import { useSearchParams } from "react-router";
 import { authService } from "@/features/auth";
@@ -6,7 +6,8 @@ import { Link } from "@/components";
 
 export default function ConfirmEmail() {
     const [searchParams] = useSearchParams();
-    const [status, setStatus] = React.useState<'loading' | 'success' | 'error'>('loading');
+    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+    const [error, setError] = useState<string | null>(null);
     const hasFetched = useRef(false);
 
     useEffect(() => {
@@ -29,9 +30,11 @@ export default function ConfirmEmail() {
                     setStatus('success');
                 } else {
                     setStatus('error');
+                    setError('Failed to confirm email');
                 }
             } catch (error) {
                 setStatus('error');
+                setError(error instanceof Error ? error.message : String(error));
             }
         };
 
@@ -74,6 +77,7 @@ export default function ConfirmEmail() {
                     <>
                         <h2 className={titleClass}>Error confirming email</h2>
                         <p className={messageClass}>There was an error confirming your email address. Please try again or contact support.</p>
+                        {error && <p className="text-red-500 text-sm">{error}</p>}
                     </>
                 )}
             </div>

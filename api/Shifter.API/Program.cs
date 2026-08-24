@@ -2,16 +2,34 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using Shifter.API.Endpoints;
 using Shifter.Application.Interfaces.Repositories.Core;
 using Shifter.Application.Interfaces.Services.Emails;
 using Shifter.Core.Entities.Identity;
+using Shifter.Infrastructure;
 using Shifter.Infrastructure.Data;
 using Shifter.Infrastructure.Data.Seed;
 using Shifter.Infrastructure.Repositories.Core;
 using Shifter.Infrastructure.Services;
+using Shifter.API.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Errors Logger
+builder.Host.UseSerilog((context, services, configuration) => configuration
+   .ReadFrom.Configuration(context.Configuration)
+   .WriteTo.Console()
+   .WriteTo.File(
+        path: "Logs/error-log-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error
+    )
+);
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Dependency Injection 
 builder.Services.Scan(scan => scan
@@ -24,6 +42,9 @@ builder.Services.Scan(scan => scan
         type.Name.EndsWith("Handler")))
     .AsImplementedInterfaces()
     .WithScopedLifetime());
+
+builder.Services.AddInfrastructureServices();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<IEmailSender<IdentityUser>, IdentityEmailSender>();
@@ -108,7 +129,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapIdentityApi<IdentityUser>();
+app.MapGroup("/api/identity").MapIdentityApi<IdentityUser>();
 app.MapAuthEndpoints();
 app.MapEmployeesEndpoints();
 app.MapSchedulerEndpoints();
