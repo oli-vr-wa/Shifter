@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "@/pages/Login";
 import ConfirmEmail from "@/pages/ConfirmEmail";
+import Dashboard from "@/pages/Dashboard";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import GuestRoute from "@/features/auth/components/GuestRoute";
 
@@ -14,7 +15,7 @@ export default function App() {
             </Route>
 
             <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<h1>Dashboard</h1>} />
+                <Route path="/dashboard" element={<Dashboard />} />
             </Route>
         </Routes>
     );

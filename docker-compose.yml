@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: shifterdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_new_data:/var/lib/postgresql
+    
+  backend:
+    build: 
+      context: ./api
+    container_name: shifter-api
+    environment:
+      - ASPNETCORE_URLS=http://+:5170
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=shifterdb;Username=postgres;Password=${DB_PASSWORD};Include Error Detail=true;
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    ports:
+      - "5170:5170"
+    depends_on:
+      - postgres
+  
+  frontend:
+    build: 
+      context: ./web
+    container_name: shifter-ui
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_new_data: 
