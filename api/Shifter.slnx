@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
+    <File Path="Dockerfile" />
   </Folder>
   <Project Path="Shifter.API/Shifter.API.csproj" Id="20c697d8-4f3e-4813-9dfa-887a327d62e7" />
   <Project Path="Shifter.Application/Shifter.Application.csproj" Id="542b88aa-f83d-41a8-96e2-8e3c0edb85b7" />

@@ -9,15 +9,18 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  // server: {
-  //   proxy: {
-  //     '/api': {
-  //       target: 'https://localhost:7176',
-  //       changeOrigin: true,
-  //       secure: false
-  //     }
-  //   }
-  // },
+  server: {
+    host: true,
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://shifter-api:5170',
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src')
