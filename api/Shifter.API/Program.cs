@@ -135,20 +135,6 @@ var app = builder.Build();
 
 app.UseCors("AllowReact");
 
-// Seed tests
-//using (var scope = app.Services.CreateScope())
-//{
-//    var serviceProvider = scope.ServiceProvider;
-//    try
-//    {
-//        await DatabaseSeeder.InitializeAsync(serviceProvider);
-//    }
-//    catch (Exception ex)
-//    {
-//        Console.WriteLine($"An error occurred while seeding the database: {ex.Message}");
-//    }
-//}
-
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -159,6 +145,13 @@ app.MapAuthEndpoints();
 app.MapEmployeesEndpoints();
 app.MapSchedulerEndpoints();
 app.MapTimesheetServiceEndpoints();
+
+// Auto-apply migrations
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ShifterDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.Run();
 
