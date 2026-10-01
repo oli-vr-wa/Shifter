@@ -2,14 +2,15 @@ import { Navigate, NavLink } from "react-router-dom";
 import shifterLogo from "../assets/shifter-logo-v1.svg";
 import { ClipboardDocumentCheckIcon, ClockIcon, ExclamationTriangleIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { ArrowLeftStartOnRectangleIcon, DocumentTextIcon, ClockIcon as ClockSolidIcon, CalendarIcon, Cog8ToothIcon, ChartBarIcon, UsersIcon as SolidUsersIcon } from '@heroicons/react/24/solid';
-import { authService } from "@/features/auth";
+import { useAuth } from "@/features/auth/hooks/AuthContext";
 
 export default function Dashboard() {
+    const { logout } = useAuth();
 
     const sidebarItemClassNames = "flex flex-row gap-2 hover:text-teal-400 hover:bg-teal-900 p-2 transition-colors duration-200 items-center cursor-pointer";
 
     const handleLogout = () => {
-        authService.logout();
+        logout();
         return <Navigate to="/login" />;
     };
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { LoginResponse } from "../types";
 import { QRCode } from "react-qr-code";
 import { Button, FormField } from "@/components";
@@ -29,9 +29,8 @@ export const TwoFactorAuthForm = ({ onSuccess, loginResponse }: TwoFactorAuthFor
 
     const { mutate: verifyTwoFactorAuthMutation, isPending } = useMutation({
         mutationFn: (data: TwoFactorAuthenticationRequest) => authService.verifyTwoFactorAuth({ ...data, mfa: loginResponse.mfaToken }),
-        onSuccess: (response) => {      
-            console.log(response);      
-            setAuthUser(response.data.user);
+        onSuccess: (response) => {     
+            setAuthUser(response.data);
             onSuccess();
         },
         onError: (error: any) => {
