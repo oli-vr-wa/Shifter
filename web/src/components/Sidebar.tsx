@@ -1,6 +1,6 @@
 import shifterLogo from "@/assets/shifter-logo-v1.svg";
 import { Navigate, NavLink } from "react-router-dom";
-import { ArrowLeftStartOnRectangleIcon, DocumentTextIcon, ClockIcon as ClockSolidIcon, CalendarIcon, Cog8ToothIcon, ChartBarIcon, UsersIcon as SolidUsersIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftStartOnRectangleIcon, DocumentTextIcon, ClockIcon as ClockSolidIcon, CalendarIcon, Cog8ToothIcon, ChartBarIcon, UsersIcon as SolidUsersIcon, BriefcaseIcon } from '@heroicons/react/24/solid';
 import { useAuth } from "@/features/auth";
 
 export const Sidebar = () => {
@@ -26,6 +26,12 @@ export const Sidebar = () => {
                         </NavLink>
                     </li>
                     <li>
+                        <NavLink to="/jobs" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
+                            <BriefcaseIcon className="size-5" />
+                            Jobs
+                        </NavLink>
+                    </li>
+                    <li>
                         <NavLink to="/employees" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
                             <CalendarIcon className="size-5" />
                             Schedule
@@ -42,7 +48,7 @@ export const Sidebar = () => {
                             <SolidUsersIcon className="size-5" />
                             Employees
                         </NavLink>
-                    </li>
+                    </li>                    
                     <li>
                         <NavLink to="/employees" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
                             <DocumentTextIcon className="size-5" />
