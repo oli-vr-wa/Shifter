@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/AuthContext";
 
-export default function GuestRoute() {
+export const GuestRoute = () => {
     const { isAuthenticated, isLoading } = useAuth();
 
     if (isLoading) {

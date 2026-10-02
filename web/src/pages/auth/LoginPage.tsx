@@ -1,13 +1,11 @@
-import { LoginForm, RegisterForm } from '@/features/auth';
 import { useNavigate } from 'react-router-dom';
 import shifterLogo from '@/assets/shifter-logo-v1.svg';
 import shifterLoginImage from '@/assets/login-page-image.png';
 import { useState } from 'react';
-import { RegistrationCompleted } from '@/features/auth/components/RegistrationCompleted';
-import type { LoginResponse } from '@/features/auth/types';
-import { TwoFactorAuthForm } from '@/features/auth/components/TwoFactorAuthForm';
+import { LoginForm, RegisterForm, RegistrationCompleted, TwoFactorAuthForm } from '@/features/auth';
+import type { LoginResponse } from '@/features/auth';
 
-export default function Login() {
+export default function LoginPage() {
     const [currentView, setCurrentView] = useState<'login' | 'twoFactorAuth' | 'forgotPassword' | 'register' | 'registrationCompleted'>('login');
     const [loginResponse, setLoginResponse] = useState<LoginResponse | null>(null);
     const navigate = useNavigate();
