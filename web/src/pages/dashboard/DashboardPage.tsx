@@ -1,4 +1,4 @@
-import { ClipboardDocumentCheckIcon, ClockIcon, ExclamationTriangleIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { DashboardMetrics } from '@/features/dashboard';
 
 export default function DashboardPage() {
 
@@ -16,82 +16,8 @@ export default function DashboardPage() {
             </div>
 
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
-
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm text-slate-500">Jobs this week</p>
-                            <p className="text-3xl font-bold text-slate-900 mt-1">24</p>
-                        </div>
-
-                        <div className="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center">
-                            <ClipboardDocumentCheckIcon className="size-6" />
-                        </div>
-                    </div>
-
-                    <p className="text-sm text-teal-600 mt-4">
-                        ↑ 20% from last week
-                    </p>
-                </div>
-
-
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm text-slate-500">Hours worked</p>
-                            <p className="text-3xl font-bold text-slate-900 mt-1">342</p>
-                        </div>
-
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                            <ClockIcon className="size-6" />
-                        </div>
-                    </div>
-
-                    <p className="text-sm text-blue-600 mt-4">
-                        ↑ 8.4% from last week
-                    </p>
-                </div>
-
-
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm text-slate-500">Timesheets pending</p>
-                            <p className="text-3xl font-bold text-slate-900 mt-1">7</p>
-                        </div>
-
-                        <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
-                            <ExclamationTriangleIcon className="size-6" />
-                        </div>
-                    </div>
-
-                    <p className="text-sm text-amber-600 mt-4">
-                        Requires attention
-                    </p>
-                </div>
-
-
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm text-slate-500">Employees working</p>
-                            <p className="text-3xl font-bold text-slate-900 mt-1">18</p>
-                        </div>
-
-                        <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
-                            <UsersIcon className="size-6" />
-                        </div>
-                    </div>
-
-                    <p className="text-sm text-slate-500 mt-4">
-                        3 employees unavailable
-                    </p>
-                </div>
-
-            </div>
-
+            {/* KPI Cards */}  
+            <DashboardMetrics />
 
             {/* Main content */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
