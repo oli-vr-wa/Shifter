@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { LoginResponse } from "../types";
 import { QRCode } from "react-qr-code";
 import { Button, FormField } from "@/components";
