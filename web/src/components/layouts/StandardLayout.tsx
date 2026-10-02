@@ -1,10 +1,10 @@
 import shifterLogo from '@/assets/shifter-logo-v1.svg';
 
-interface StandardPageTemplateProps {
+interface StandardLayoutProps {
     children: React.ReactNode;
 }
 
-export const StandardPageTemplate = ({ children }: StandardPageTemplateProps) => {
+export const StandardLayout = ({ children }: StandardLayoutProps) => {
     return (
         <div className="relative flex flex-col min-h-screen items-center justify-center bg-teal-400">
             <div className="absolute inset-0 z-0 overflow-hidden">

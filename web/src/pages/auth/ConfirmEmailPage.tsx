@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { authService } from "@/features/auth";
 import { Link } from "@/components";
-import { StandardPageTemplate } from "@/components/StandardPageTemplate";
+import { StandardLayout } from "@/components/layouts/StandardLayout";
 
 export default function ConfirmEmailPage() {
     const [searchParams] = useSearchParams();
@@ -45,7 +45,7 @@ export default function ConfirmEmailPage() {
     const messageClass = "mb-10 text-left text-gray-600 text-sm";    
 
     return (
-        <StandardPageTemplate>
+        <StandardLayout>
             {status === 'loading' && (
                     <>
                         <h2 className={titleClass}>Confirming your email...</h2>
@@ -68,6 +68,6 @@ export default function ConfirmEmailPage() {
                         {error && <p className="text-red-500 text-sm">{error}</p>}
                     </>
                 )}
-        </StandardPageTemplate>
+        </StandardLayout>
     );
 }
