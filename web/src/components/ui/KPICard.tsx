@@ -1,9 +1,14 @@
 import type { ReactNode } from "react";
 
-interface KPICardProps {
+interface MetricCardTrend {
+    trend: string | number;
+    direction: 'up' | 'down' | 'neutral';
+}
+
+export interface KPICardProps {
     title: string;
     value: string | number;
-    trend?: string;
+    trend?: MetricCardTrend;
     icon?: ReactNode;
     themeColor?: 'green' | 'blue' | 'yellow' | 'purple';
     isLoading?: boolean;
@@ -16,6 +21,16 @@ export const KPICard = ({ title, value, icon, themeColor = 'green', isLoading = 
         yellow: { bg: 'bg-amber-100', text: 'text-amber-700', trend: 'text-amber-600' },
         purple: { bg: 'bg-purple-100', text: 'text-purple-700', trend: 'text-purple-600' },
     };
+
+    const trendSymbols = {
+        up: '↑',
+        down: '↓',
+        neutral: '',
+    };
+
+    const formatTrend = (trend: MetricCardTrend) => {
+        return `${trendSymbols[trend.direction]} ${trend.trend}`.trim();
+    };        
 
     const themeClass = colorClasses[themeColor];
 
@@ -37,14 +52,18 @@ export const KPICard = ({ title, value, icon, themeColor = 'green', isLoading = 
                     <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
                 </div>
 
-                <div className={`flex w-10 h-10 rounded-lg items-center justify-center ${themeClass.bg} ${themeClass.text}`}>
-                    {icon}
-                </div>
+                {icon && (
+                    <div className={`flex w-10 h-10 rounded-lg items-center justify-center ${themeClass.bg} ${themeClass.text}`}>
+                        {icon}
+                    </div>
+                )}                
             </div>       
 
-            <p className={`text-sm ${themeClass.trend} mt-4`}>
-                {trend}
-            </p>
+            {trend && (
+                <p className={`text-sm ${themeClass.trend} mt-4`}>
+                    {formatTrend(trend)}
+                </p>
+            )}            
         </div>
     )
 }

@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/Badge';
 import type { JobSchedule } from '../types';
 
 interface ScheduleListItemProps {
@@ -5,12 +6,12 @@ interface ScheduleListItemProps {
 }
 
 const statusConfig = {
-    'in-progress': { label: 'In Progress', line: 'bg-teal-500', badge: 'bg-teal-100 text-teal-700' },
-    'starting-soon': { label: 'Starting Soon', line: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700' },
-    'scheduled': { label: 'Scheduled', line: 'bg-blue-500', badge: 'bg-blue-100 text-blue-700' },
-    'completed': { label: 'Completed', line: 'bg-purple-500', badge: 'bg-purple-100 text-purple-700' },
-    'cancelled': { label: 'Cancelled', line: 'bg-red-500', badge: 'bg-red-100 text-red-700' },
-};
+    'in-progress': { label: 'In Progress', line: 'bg-teal-500', badgeType: 'success' },
+    'starting-soon': { label: 'Starting Soon', line: 'bg-amber-500', badgeType: 'warning' },
+    'scheduled': { label: 'Scheduled', line: 'bg-blue-500', badgeType: 'default' },
+    'completed': { label: 'Completed', line: 'bg-purple-500', badgeType: 'info' },
+    'cancelled': { label: 'Cancelled', line: 'bg-red-500', badgeType: 'error' },
+} as const;
 
 export const ScheduleListItem = ({ job }: ScheduleListItemProps) => {
     const theme = statusConfig[job.status];
@@ -32,9 +33,9 @@ export const ScheduleListItem = ({ job }: ScheduleListItemProps) => {
                 </p>
             </div>
 
-            <span className={`px-3 py-1 text-xs font-medium rounded-full ${theme.badge}`}>
+            <Badge type={theme.badgeType}>
                 {theme.label}
-            </span>
+            </Badge>
         </div>
     );
 }

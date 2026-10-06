@@ -1,8 +1,8 @@
-import type { DashboardMetric } from "./dashboard-metric.types";
+import type { KPICardProps } from "@/components/ui/KPICard";
 
 export interface DashboardSummaryData {
-    jobs: DashboardMetric;
-    hours: DashboardMetric;
-    timesheets: DashboardMetric;
-    employees: DashboardMetric;
+    jobs: KPICardProps;
+    hours: KPICardProps;
+    timesheets: KPICardProps;
+    employees: KPICardProps;
 }
