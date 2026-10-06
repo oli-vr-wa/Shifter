@@ -3,9 +3,9 @@ import { TimesheetStatusRow } from "./TimesheetStatusRow";
 import type { TimesheetSummary } from "../types";
 
 const mockTimesheetSummaries: TimesheetSummary[] = [
-    { status: 'approved', count: 5, percentage: 50 },
-    { status: 'pending', count: 3, percentage: 30 },
-    { status: 'rejected', count: 2, percentage: 20 },
+    { id: '1', status: 'approved', count: 5, percentage: 50 },
+    { id: '2', status: 'pending', count: 3, percentage: 30 },
+    { id: '3', status: 'rejected', count: 2, percentage: 20 },
 ];
 
 export const TimesheetsOverviewWidget = () => {
@@ -20,7 +20,7 @@ export const TimesheetsOverviewWidget = () => {
             <div className="p-5 space-y-5">
 
                 {mockTimesheetSummaries.map((summary) => (
-                    <TimesheetStatusRow summary={summary} />
+                    <TimesheetStatusRow key={summary.id} summary={summary} />
                 ))}
 
                 <Button className="w-full text-sm">Review Timesheets</Button>
