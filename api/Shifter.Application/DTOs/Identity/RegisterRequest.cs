@@ -1,5 +1,4 @@
-﻿
-namespace Shifter.Application.DTOs.Identity;
+﻿namespace Shifter.Application.DTOs.Identity;
 
 public record RegisterRequest(
     string FirstName,

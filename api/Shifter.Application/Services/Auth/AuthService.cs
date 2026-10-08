@@ -6,10 +6,12 @@ using Shifter.Application.DTOs.Identity;
 using Shifter.Application.Interfaces.Auth;
 using Shifter.Application.Interfaces.Repositories.CompanyRepos;
 using Shifter.Application.Interfaces.Repositories.Core;
+using Shifter.Application.Interfaces.Repositories.HumanResources;
 using Shifter.Application.Interfaces.Repositories.Identity;
 using Shifter.Application.Interfaces.Repositories.Tenant;
 using Shifter.Application.Interfaces.Services.Emails;
 using Shifter.Application.Interfaces.Tenant.Handlers;
+using Shifter.Core.Entities.HumanResources;
 using Shifter.Core.Entities.Identity;
 using Shifter.Core.Entities.Tenant;
 using System.IdentityModel.Tokens.Jwt;
@@ -24,6 +26,7 @@ public class AuthService(
     IUserRepository userRepository,
     IUserProfileRepository userProfileRepository,
     ICompanyRepository companyRepository,
+    IEmployeeRepository employeeRepository,
     ICompanyHandler companyHandler,
     IEmailService emailService,
     IUnitOfWork unitOfWork) : IAuthService
@@ -33,6 +36,7 @@ public class AuthService(
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserProfileRepository _userProfileRepository = userProfileRepository;
     private readonly ICompanyRepository _companyRepository = companyRepository;
+    private readonly IEmployeeRepository _employeeRepository = employeeRepository;
     private readonly ICompanyHandler _companyHandler = companyHandler;
     private readonly IEmailService _emailService = emailService; 
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -52,13 +56,15 @@ public class AuthService(
                 Name = request.CompanyName,
                 Abn = _companyHandler.FormatAbn(request.CompanyAbn)
             };
+            await _companyRepository.AddCompanyAsync(company);
+            await _unitOfWork.CommitAsync();
 
             // Create the UserProfile for the user
             var userProfile = new UserProfile
             {
                 FirstName = request.FirstName,
-                LastName = request.LastName,                
-                Company = company
+                LastName = request.LastName,
+                CompanyId = company.Id
             };
 
             // Create User
@@ -68,12 +74,23 @@ public class AuthService(
                 Email = request.Email,
                 UserName = request.Email,                
                 Role = Role.CompanyOwner,
-                Company = company,
+                CompanyId = company.Id,
                 EmployeeProfile = userProfile
-            };
+            };            
 
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (!result.Succeeded) return result;   
+            var result = await _userManager.CreateAsync(user, request.Password);            
+            if (!result.Succeeded) return result;
+
+            // Create Employee record for the user
+            var employee = new Employee
+            {
+                UserId = user.Id,
+                CompanyId = company.Id,
+                EmploymentStartDate = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+            };
+            await _employeeRepository.AddAsync(employee);
+            await _unitOfWork.CommitAsync();
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token); // Encode the token to make it URL-safe

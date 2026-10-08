@@ -28,8 +28,10 @@ public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
                 e.User!.EmployeeProfile!.FirstName,
                 e.User.EmployeeProfile.LastName,
                 e.User.Email!,
+                e.User.PhoneNumber,
                 e.JobPosition,
-                e.EmploymentStartDate                
+                e.EmploymentStartDate,
+                e.User.Role
             ))
             .ToListAsync();
     }
@@ -44,8 +46,10 @@ public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
                 e.User!.EmployeeProfile!.FirstName,
                 e.User.EmployeeProfile.LastName,
                 e.User.Email!,
+                e.User.PhoneNumber,
                 e.JobPosition,
-                e.EmploymentStartDate
+                e.EmploymentStartDate,
+                e.User.Role
             ))
             .ToListAsync();
     }
@@ -60,8 +64,10 @@ public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
                 e.User!.EmployeeProfile!.FirstName,
                 e.User.EmployeeProfile.LastName,
                 e.User.Email!,
+                e.User.PhoneNumber,
                 e.JobPosition,
-                e.EmploymentStartDate
+                e.EmploymentStartDate,
+                e.User.Role
             ))
             .ToListAsync();
     }

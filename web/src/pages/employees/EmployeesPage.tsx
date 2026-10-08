@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { CurrentEmployeesTable, EmployeesSummary } from '@/features/employees';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import Button from "@/components/Button";
 
 export default function EmployeesPage() {
+  const navigate = useNavigate();
 
   return (
     <div className="w-full max-w">
@@ -11,10 +14,12 @@ export default function EmployeesPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Employees</h1>
           <p className="text-gray-500 text-sm">Manage your workforce, contact details, and availability.</p>
         </div>
-        <button className="flex items-center gap-2 bg-[#0d3330] hover:bg-[#154d48] text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
+        <Button
+          className="flex items-center gap-2"
+          onClick={() => navigate('/employees/new')}>          
           <PlusIcon className="w-5 h-5" />
           Add Employee
-        </button>
+        </Button>
       </div>
 
       {/* Summary Cards */}
