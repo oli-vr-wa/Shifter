@@ -1,4 +1,5 @@
-﻿using Shifter.Application.Interfaces.Services.HumanResources;
+﻿using Shifter.Application.DTOs.HumanResources;
+using Shifter.Application.Interfaces.Services.HumanResources;
 
 namespace Shifter.API.Endpoints;
 
@@ -8,9 +9,13 @@ public static class EmployeesEndpoints
     {
         var group = routes.MapGroup("/api/employees");
 
+        // Employees lists 
         group.MapGet("/", GetAllEmployeesAsync);
         group.MapGet("/current", GetAllCurrentEmployeesAsync);
         group.MapGet("/terminated", GetAllTerminatedEmployeesAsync);
+        // Get, Create, Update
+        group.MapPost("/", CreateEmployeeAsync); 
+        group.MapGet("/{employeeId:guid}", GetEmployeeByIdAsync);
     }
 
     private static async Task<IResult> GetAllEmployeesAsync(IEmployeeQueryService employeeQueryService)
@@ -29,5 +34,21 @@ public static class EmployeesEndpoints
     {
         var employees = await employeeQueryService.GetAllTerminatedAsync();
         return Results.Ok(employees);
+    }
+
+    private static async Task<IResult> CreateEmployeeAsync(IEmployeeOnboardingService employeeOnboardingService, OnboardEmployeeRequest request)
+    {
+        var employeeId = await employeeOnboardingService.OnboardAsync(request);
+        return Results.Created($"/api/employees/{employeeId}", employeeId);
+    }
+
+    private static async Task<IResult> GetEmployeeByIdAsync(Guid employeeId, IEmployeeQueryService employeeQueryService)
+    {
+        var employee = await employeeQueryService.GetByIdAsync(employeeId);
+        if (employee == null)
+        {
+            return Results.NotFound();
+        }
+        return Results.Ok(employee);
     }
 }

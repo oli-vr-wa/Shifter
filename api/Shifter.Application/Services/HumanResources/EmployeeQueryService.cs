@@ -25,4 +25,24 @@ public class EmployeeQueryService(IEmployeeRepository employeeRepository) : IEmp
     {
         return await _employeeRepository.GetAllTerminatedAsync();
     }
+
+    /// <inheritdoc/>
+    public async Task<EmployeeDto?> GetByIdAsync(Guid employeeId)
+    {
+        var employee = await _employeeRepository.GetByIdAsync(employeeId);
+        if (employee == null || employee.User == null || employee.User.EmployeeProfile == null)
+        {
+            return null;
+        }
+        return new EmployeeDto(
+            employee.Id,
+            employee.User.EmployeeProfile.FirstName,
+            employee.User.EmployeeProfile.LastName,
+            employee.User.Email!,
+            employee.User.PhoneNumber,
+            employee.JobPosition,
+            employee.EmploymentStartDate,
+            employee.User.Role
+        );
+    }
 }

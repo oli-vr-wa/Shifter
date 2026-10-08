@@ -30,24 +30,25 @@ public class EmployeeOnboardingService(
 
         try
         {
+            var userProfile = new UserProfile
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+            };
+
             var user = new User
             {
+                Id = Guid.CreateVersion7(),
                 Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
                 UserName = request.Email,
-                Role = Role.Employee
+                Role = request.Role,
+                EmployeeProfile = userProfile
             };
 
             var createResult = await _userManager.CreateAsync(user);
             if (!createResult.Succeeded)
                 return ServiceResult<Guid>.Failure(string.Join("; ", createResult.Errors.Select(e => e.Description)));
-
-            var userProfile = new UserProfile
-            {
-                UserId = user.Id,
-                FirstName = request.FirstName,
-                LastName = request.LastName
-            };
-            await _userProfileRepository.Add(userProfile);
 
             var employee = new Employee
             {
@@ -62,9 +63,9 @@ public class EmployeeOnboardingService(
             var passwordSetupToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             // TODO: Send passwordSetupToken to the employee's email so they can set up their password.
-            Debug.WriteLine($"Employee User Id: {user.Id} | Password setup token: {passwordSetupToken}");
+            Console.WriteLine($"Employee User Id: {user.Id} | Password setup token: {passwordSetupToken}");
 
-            await transaction.CommitAsync();
+            await transaction.CommitAsync();            
 
             return ServiceResult<Guid>.Success(user.Id);
         }
