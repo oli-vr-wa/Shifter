@@ -11,6 +11,8 @@ export interface ColumnDef<T> {
 export interface DataTableProps<T> {
     columns: ColumnDef<T>[];
     data: T[];
+    isLoading?: boolean;
+    isLoadError?: boolean;
     // Optional toolbar props
     showToolbar?: boolean;
     searchTerm?: string;
@@ -24,6 +26,8 @@ export function DataTable<T>({
     columns, 
     data,
     showToolbar = false,
+    isLoading = false,
+    isLoadError = false,
     searchTerm = '',
     onSearchChange,
     searchPlaceholder = "Search...",
@@ -59,7 +63,7 @@ export function DataTable<T>({
                 </div>
             )}
             
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto">                
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50 border-b border-gray-100">
@@ -92,6 +96,16 @@ export function DataTable<T>({
                     ))}
                     </tbody>
                 </table>
+                {isLoading && (
+                    <div className="p-4 text-center text-gray-500">
+                        Loading...
+                    </div>
+                )}
+                {isLoadError && (
+                    <div className="p-4 text-center text-red-500">
+                        Error loading data.
+                    </div>
+                )}
             </div>
         </div>
     )

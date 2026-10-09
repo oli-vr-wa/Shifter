@@ -75,4 +75,43 @@ public class EmployeeOnboardingService(
             throw;
         }
     }
+
+    /// <inheritdoc />
+    public async Task<ServiceResult<Guid>> UpdateAsync(Guid employeeId, OnboardEmployeeRequest request)
+    {
+        using var transaction = await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            var employee = await _employeeRepository.GetByIdAsync(employeeId);
+            if (employee == null)
+                return ServiceResult<Guid>.Failure("Employee not found.");
+            var user = employee.User;
+            if (user == null)
+                return ServiceResult<Guid>.Failure("Associated user not found.");
+            // Update UserProfile
+            var userProfile = user.EmployeeProfile;
+            if (userProfile != null)
+            {
+                userProfile.FirstName = request.FirstName;
+                userProfile.LastName = request.LastName;                
+            }
+            // Update User
+            user.Email = request.Email;
+            user.PhoneNumber = request.PhoneNumber;
+            user.Role = request.Role;
+            await _userManager.UpdateAsync(user);
+            // Update Employee
+            employee.JobPosition = request.JobPosition;
+            employee.EmploymentStartDate = request.EmploymentStartDate;
+            await _unitOfWork.CommitAsync();
+            await transaction.CommitAsync();
+
+            return ServiceResult<Guid>.Success(employee.Id);
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
 }

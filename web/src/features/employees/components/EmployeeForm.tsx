@@ -32,15 +32,15 @@ export const EmployeeForm = ({ initialData, onSuccess, onCancel }: EmployeeFormP
         firstName: '',
         lastName: '',
         email: '',
-        phone: '',
+        phoneNumber: '',
         jobPosition: '',
         employmentStartDate: '',
         role: '' as unknown as UserRole,
     };
-
+    
     const form = useForm<FormInput, any, FormOutput>({
         resolver: zodResolver(employeeRequestSchema),
-        defaultValues: defaultFormData,
+        values: defaultFormData,
     });
 
     const { mutate: saveMutation, isPending } = useMutation({
@@ -106,8 +106,8 @@ export const EmployeeForm = ({ initialData, onSuccess, onCancel }: EmployeeFormP
                         label="Phone Number"
                         type="tel"
                         placeholder="0412 345 678"
-                        error={form.formState.errors.phone?.message}
-                        {...form.register('phone')}
+                        error={form.formState.errors.phoneNumber?.message}
+                        {...form.register('phoneNumber')}
                     />
                 </div>
 
@@ -138,6 +138,13 @@ export const EmployeeForm = ({ initialData, onSuccess, onCancel }: EmployeeFormP
                         {...form.register('employmentStartDate')}
                     />
                 </div>
+
+                {/* Display any error messages from the error prop state */}
+                {error && (
+                    <div className="text-red-500">
+                        {error}
+                    </div>
+                )}
 
                 <div className="flex justify-end gap-3 pt-6 mt-6 border-t border-gray-100">
                     <Button

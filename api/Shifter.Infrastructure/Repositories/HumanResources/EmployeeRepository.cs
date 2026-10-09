@@ -16,7 +16,10 @@ public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
 
     /// <inheritdoc/>
     public async Task<Employee?> GetByIdAsync(Guid employeeId) =>
-        await _context.Employees.FindAsync(employeeId);
+        await _context.Employees
+            .Include(e => e.User)
+            .ThenInclude(e => e!.EmployeeProfile)
+            .FirstOrDefaultAsync(e => e.Id == employeeId);
 
     /// <inheritdoc/>
     public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
