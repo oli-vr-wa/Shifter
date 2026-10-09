@@ -6,6 +6,7 @@ import EmployeesPage from "@/pages/employees/EmployeesPage";
 import { ProtectedRoute, GuestRoute } from "@/features/auth";
 import { AppLayout } from "@/components/layouts/AppLayout";
 import NewEmployeePage from "@/pages/employees/NewEmployeePage";
+import EditEmployeePage from "@/pages/employees/EditEmployeePage";
 
 export default function App() {
     return (
@@ -21,6 +22,7 @@ export default function App() {
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/employees" element={<EmployeesPage />} />
                     <Route path="/employees/new" element={<NewEmployeePage />} />
+                    <Route path="/employees/:employeeId/edit" element={<EditEmployeePage />} />
                 </Route>
             </Route>
         </Routes>

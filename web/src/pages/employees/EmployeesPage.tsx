@@ -4,7 +4,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import Button from "@/components/Button";
 
 export default function EmployeesPage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
 
   return (
     <div className="w-full max-w">

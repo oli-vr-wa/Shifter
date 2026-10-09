@@ -12,4 +12,12 @@ public interface IEmployeeOnboardingService
     /// <param name="request">The information required to onboard the new employee.</param>
     /// <returns>A <see cref="ServiceResult{T}"/> containing the employee's user ID on success.</returns>
     Task<ServiceResult<Guid>> OnboardAsync(OnboardEmployeeRequest request);
+
+    /// <summary>
+    /// Updates an existing employee's information.
+    /// </summary>
+    /// <param name="employeeId">The ID of the employee to update.</param>
+    /// <param name="request">The updated employee information.</param>
+    /// <returns>A <see cref="ServiceResult{T}"/> indicating the success or failure of the operation.</returns>
+    Task<ServiceResult<Guid>> UpdateAsync(Guid employeeId, OnboardEmployeeRequest request);
 }

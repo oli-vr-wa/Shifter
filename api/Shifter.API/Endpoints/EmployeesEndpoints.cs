@@ -13,9 +13,10 @@ public static class EmployeesEndpoints
         group.MapGet("/", GetAllEmployeesAsync);
         group.MapGet("/current", GetAllCurrentEmployeesAsync);
         group.MapGet("/terminated", GetAllTerminatedEmployeesAsync);
-        // Get, Create, Update
+        // Create, Get, Update
         group.MapPost("/", CreateEmployeeAsync); 
         group.MapGet("/{employeeId:guid}", GetEmployeeByIdAsync);
+        group.MapPut("/{employeeId:guid}", UpdateEmployeeAsync);
     }
 
     private static async Task<IResult> GetAllEmployeesAsync(IEmployeeQueryService employeeQueryService)
@@ -50,5 +51,14 @@ public static class EmployeesEndpoints
             return Results.NotFound();
         }
         return Results.Ok(employee);
+    }
+
+    private static async Task<IResult> UpdateEmployeeAsync(Guid employeeId, OnboardEmployeeRequest request, IEmployeeOnboardingService employeeOnboardingService)
+    {
+        var result = await employeeOnboardingService.UpdateAsync(employeeId, request);
+
+        return result.IsSuccess
+            ? Results.Ok()
+            : Results.BadRequest(result.Error);
     }
 }
