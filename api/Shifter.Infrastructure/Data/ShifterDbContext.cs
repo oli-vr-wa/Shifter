@@ -1,5 +1,4 @@
-﻿using Audit.Core;
-using Audit.EntityFramework;
+﻿using Audit.EntityFramework;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -7,13 +6,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Shifter.Application.Interfaces.Tenant;
 using Shifter.Core.Entities.Audit;
 using Shifter.Core.Entities.Common;
+using Shifter.Core.Entities.Customers;
 using Shifter.Core.Entities.HumanResources;
 using Shifter.Core.Entities.Identity;
 using Shifter.Core.Entities.Location;
+using Shifter.Core.Entities.Operations;
 using Shifter.Core.Entities.Tenant;
 using Shifter.Core.Entities.Timesheets;
 using System.Linq.Expressions;
-using System.Text.Json;
 
 namespace Shifter.Infrastructure.Data;
 
@@ -38,6 +38,9 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
     public DbSet<UserProfile> EmployeeProfiles { get; set; }
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Company> Companies { get; set; }
+    public DbSet<Job> Jobs { get; set; }
+    public DbSet<Client> Clients { get; set; }
+    public DbSet<ClientContact> ClientContacts { get; set; }
     public DbSet<WorkEvent> WorkEvents { get; set; }
     public DbSet<WorkEventHistory> WorkEventHistories { get; set; }
     public DbSet<Address> Addresses { get; set; }
@@ -51,7 +54,7 @@ public class ShifterDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid
         modelBuilder.Entity<IdentityRole<Guid>>(b => b.ToTable("Roles"));
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShifterDbContext).Assembly);
 
-        // Apply global query filter for multi-tenancy to use the current company ID>
+        // Apply global query filter for multi-tenancy to use the current company ID
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var primaryKey = entityType.FindPrimaryKey();
