@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { employeeRequestSchema, UserRole, type EmployeeRequest } from "../types";
 import type { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { employeeService } from "../api/employee.service";
-import { Button, FormField } from "@/components";
-import { FormSelect } from "@/components/form-components/FormSelect";
+import { Button, FormField, FormSelect } from "@/components";
+import { employeeRequestSchema, UserRole, type EmployeeRequest } from "../types";
 
 interface EmployeeFormProps {
     initialData?: EmployeeRequest | null,

@@ -3,7 +3,7 @@ import { EmployeeForm } from "@/features/employees";
 import { employeeService } from "@/features/employees/api/employee.service";
 import type { EmployeeRequest, UserRole } from "@/features/employees/types";
 import { useQuery } from "@tanstack/react-query";
-import { toInputDate } from "@/utils/dateHelpers";
+import { toInputDate } from "@/lib/utils/dateHelpers";
 
 export default function EditEmployeePage() {
     const { employeeId } = useParams<{ employeeId: string }>();
