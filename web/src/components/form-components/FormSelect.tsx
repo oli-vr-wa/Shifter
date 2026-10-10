@@ -1,4 +1,5 @@
 import React from "react";
+import { Select } from "@/components";
 
 interface FormSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
     label: string;    
@@ -15,14 +16,14 @@ export const FormSelect =  React.forwardRef<HTMLSelectElement, FormSelectProps>(
     return (
         <div className="flex flex-col gap-1">
             {label && <label htmlFor={inputId} className="text-sm font-medium text-gray-700">{label}</label>}
-            <select ref={ref} id={inputId} name={name} className={`border rounded-md p-2 ${isInvalid ? 'border-red-600' : 'border-gray-300'}`} {...props}>
+            <Select ref={ref} id={inputId} name={name} aria-invalid={isInvalid} {...props}>
                 {placeholder && <option value="">{placeholder}</option>}
                 {options.map((option) => (
                     <option key={option.value} value={option.value}>
                         {option.label}
                     </option>
                 ))}
-            </select>
+            </Select>
             {error && <p className="text-sm text-red-600">{error}</p>}
         </div>
     );
