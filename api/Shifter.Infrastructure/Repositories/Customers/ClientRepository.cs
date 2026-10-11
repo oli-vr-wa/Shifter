@@ -10,9 +10,9 @@ public class ClientRepository(ShifterDbContext dbContext) : IClientRepository
     private readonly ShifterDbContext _dbContext = dbContext;
 
     /// <inheritdoc />
-    public async Task AddAsync(Client client, CancellationToken ct = default)
+    public void Add(Client client)
     {
-        await _dbContext.Clients.AddAsync(client, ct);
+        _dbContext.Clients.Add(client);
     }
 
     /// <inheritdoc />

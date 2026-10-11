@@ -12,9 +12,9 @@ public static class TimesheetServiceEndpoints
         group.MapPost("/start-work-event-task", StartWorkEventTaskAsync);
         group.MapPost("/end-work-event-task", EndWorkEventTaskAsync);
     }
-    private static async Task<IResult> StartWorkEventTaskAsync([FromBody] StartWorkEventTaskRequest request, ITimesheetService timesheetService)
+    private static async Task<IResult> StartWorkEventTaskAsync([FromBody] StartWorkEventTaskRequest request, ITimesheetService timesheetService, CancellationToken ct)
     {
-        var result = await timesheetService.StartWorkEventTaskAsync(request);
+        var result = await timesheetService.StartWorkEventTaskAsync(request, ct);
         if (!result.IsSuccess)
         {
             return Results.BadRequest(result.Error);
@@ -22,9 +22,9 @@ public static class TimesheetServiceEndpoints
         return Results.Ok("Work event task started successfully.");
     }
 
-    private static async Task<IResult> EndWorkEventTaskAsync([FromBody] EndWorkEventTaskRequest request, ITimesheetService timesheetService)
+    private static async Task<IResult> EndWorkEventTaskAsync([FromBody] EndWorkEventTaskRequest request, ITimesheetService timesheetService, CancellationToken ct)
     {
-        var result = await timesheetService.EndWorkEventTaskAsync(request);
+        var result = await timesheetService.EndWorkEventTaskAsync(request, ct);
         if (!result.IsSuccess)
         {
             return Results.BadRequest(result.Error);

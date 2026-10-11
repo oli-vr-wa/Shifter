@@ -10,14 +10,16 @@ public interface IEmployeeOnboardingService
     /// The employee will receive a link to set up their password.
     /// </summary>
     /// <param name="request">The information required to onboard the new employee.</param>
+    /// <param name="ct">A cancellation token.</param>
     /// <returns>A <see cref="ServiceResult{T}"/> containing the employee's user ID on success.</returns>
-    Task<ServiceResult<Guid>> OnboardAsync(OnboardEmployeeRequest request);
+    Task<ServiceResult<Guid>> OnboardAsync(OnboardEmployeeRequest request, CancellationToken ct = default);
 
     /// <summary>
     /// Updates an existing employee's information.
     /// </summary>
     /// <param name="employeeId">The ID of the employee to update.</param>
     /// <param name="request">The updated employee information.</param>
+    /// <param name="ct">A cancellation token.</param>
     /// <returns>A <see cref="ServiceResult{T}"/> indicating the success or failure of the operation.</returns>
-    Task<ServiceResult<Guid>> UpdateAsync(Guid employeeId, OnboardEmployeeRequest request);
+    Task<ServiceResult<Guid>> UpdateAsync(Guid employeeId, OnboardEmployeeRequest request, CancellationToken ct = default);
 }

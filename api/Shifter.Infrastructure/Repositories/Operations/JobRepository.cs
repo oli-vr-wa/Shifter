@@ -10,41 +10,33 @@ public class JobRepository(ShifterDbContext dbContext) : IJobRepository
     private readonly ShifterDbContext _dbContext = dbContext;
 
     /// <inheritdoc />
-    public async Task AddJobAsync(Job job)
+    public void Add(Job job)
     {
-        if (job == null) throw new ArgumentNullException(nameof(job), "Job cannot be null.");
-        if (string.IsNullOrWhiteSpace(job.Title)) throw new ArgumentException("Job title cannot be null or empty.", nameof(job.Title));
+        ArgumentNullException.ThrowIfNull(job, nameof(job));
+        ArgumentException.ThrowIfNullOrEmpty(job.Title, nameof(job.Title));
         
-        await _dbContext.Jobs.AddAsync(job);
+        _dbContext.Jobs.Add(job);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Job>> GetAllJobsAsync()
-    {
-        return await _dbContext.Jobs.ToListAsync();
-    }
+    public async Task<IEnumerable<Job>> GetAllJobsAsync(CancellationToken ct = default) =>
+        await _dbContext.Jobs.ToListAsync(ct);
 
     /// <inheritdoc />
-    public async Task<Job?> GetJobByIdAsync(Guid jobId)
-    {
-        return await _dbContext.Jobs.FindAsync(jobId);
-    }
+    public async Task<Job?> GetByIdAsync(Guid jobId, CancellationToken ct = default) =>
+        await _dbContext.Jobs.FindAsync(new object[] { jobId }, ct);
 
     /// <inheritdoc />
-    public async Task<Job?> GetJobByTitleAsync(string title)
-    {
-        return await _dbContext.Jobs.FirstOrDefaultAsync(j => j.Title == title);
-    }
+    public async Task<Job?> GetByTitleAsync(string title, CancellationToken ct = default) =>
+        await _dbContext.Jobs.FirstOrDefaultAsync(j => j.Title == title, ct);
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Job>> GetJobsByClientIdAsync(Guid clientId)
-    {
-        return await _dbContext.Jobs.Where(j => j.ClientId == clientId).ToListAsync();
-    }
+    public async Task<IEnumerable<Job>> GetJobsByClientIdAsync(Guid clientId, CancellationToken ct = default) =>
+        await _dbContext.Jobs.Where(j => j.ClientId == clientId).ToListAsync(ct);
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Job>> GetUncompletedJobsAsync()
-    {
-        return await _dbContext.Jobs.Where(m => m.Status != JobStatus.Completed && m.Status != JobStatus.Cancelled).ToListAsync();
-    }
+    public async Task<IEnumerable<Job>> GetUncompletedJobsAsync(CancellationToken ct = default) =>
+        await _dbContext.Jobs
+            .Where(m => m.Status != JobStatus.Completed && m.Status != JobStatus.Cancelled)
+            .ToListAsync(ct);
 }

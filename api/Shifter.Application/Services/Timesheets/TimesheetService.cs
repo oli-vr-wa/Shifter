@@ -24,7 +24,7 @@ public class TimesheetService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     
     /// <inheritdoc/>
-    public async Task<ServiceResult<bool>> StartWorkEventTaskAsync(StartWorkEventTaskRequest request)
+    public async Task<ServiceResult<bool>> StartWorkEventTaskAsync(StartWorkEventTaskRequest request, CancellationToken ct)
     {
         if (request == null)        
             return ServiceResult<bool>.Failure("Request cannot be null.");
@@ -38,11 +38,11 @@ public class TimesheetService(
             ? await _workEventRepository.GetByIdAsync(request.WorkEventId.Value)
             : null;
 
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
+        using var transaction = await _unitOfWork.BeginTransactionAsync(ct);
 
         // If an address is provided, add or update it and get the AddressId
-        int? addressLocationId = request.Address != null ? await _addressHandler.AddOrUpdateAddressAsync(request.Address) : null;
-        int? actionPerformedAtAddressId = request.ActionPerformedAtAddress != null ? await _addressHandler.AddOrUpdateAddressAsync(request.ActionPerformedAtAddress) : null;
+        var addressLocation = request.Address != null ? await _addressHandler.GetOrCreateAddressAsync(request.Address, ct) : null;
+        var actionPerformedAtAddress = request.ActionPerformedAtAddress != null ? await _addressHandler.GetOrCreateAddressAsync(request.ActionPerformedAtAddress, ct) : null;
 
         try
         {
@@ -56,23 +56,24 @@ public class TimesheetService(
                     Description = request.Description,
                     CreatedByUserId = _tenantService.GetCurrentUserId(),
                     CreatedAt = DateTime.UtcNow,
-                    AddressId = addressLocationId,
+                    Address = addressLocation,
                 };
 
-                await _workEventRepository.AddAsync(workEvent);
-                await _unitOfWork.CommitAsync();
-                await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Created, actionPerformedAtAddressId);
+                _workEventRepository.Add(workEvent);
+                await _unitOfWork.CommitAsync(ct);
+                _workEventHistoryLogHandler.AddWorkEventHistoryLog(workEvent.Id, WorkEventStatus.Created, actionPerformedAtAddress);
             }
 
             workEvent.ActualStartTime = request.ActualStartTime ?? DateTime.UtcNow;
             workEvent.Status = WorkEventStatus.Started;
             workEvent.LastUpdatedAt = DateTime.UtcNow;
-            await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Started, actionPerformedAtAddressId);
-            await _unitOfWork.CommitAsync();
+            _workEventHistoryLogHandler.AddWorkEventHistoryLog(workEvent.Id, WorkEventStatus.Started, actionPerformedAtAddress);
+            await _unitOfWork.CommitAsync(ct);
+            await transaction.CommitAsync(ct);
         }
         catch (Exception ex)
         {
-            transaction.Rollback();
+            await transaction.RollbackAsync(ct);
             throw new Exception($"An error occurred while starting the work event task: {ex.Message}", ex);
         }        
 
@@ -80,7 +81,7 @@ public class TimesheetService(
     }
 
     /// <inheritdoc/>
-    public async Task<ServiceResult<bool>> EndWorkEventTaskAsync(EndWorkEventTaskRequest request)
+    public async Task<ServiceResult<bool>> EndWorkEventTaskAsync(EndWorkEventTaskRequest request, CancellationToken ct)
     {
         if (request == null)
             return ServiceResult<bool>.Failure("Request cannot be null.");
@@ -90,25 +91,26 @@ public class TimesheetService(
             return ServiceResult<bool>.Failure("WorkEventId cannot be empty.");
 
         // Retrieve the work event
-        var workEvent = await _workEventRepository.GetByIdAsync(request.WorkEventId);
+        var workEvent = await _workEventRepository.GetByIdAsync(request.WorkEventId, ct);
         if (workEvent == null)
             return ServiceResult<bool>.Failure("Work event not found.");
 
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
+        using var transaction = await _unitOfWork.BeginTransactionAsync(ct);
 
-        int? addressLocationId = request.ActionPerformedAtAddress != null ? await _addressHandler.AddOrUpdateAddressAsync(request.ActionPerformedAtAddress) : null;
+        var addressLocation = request.ActionPerformedAtAddress != null ? await _addressHandler.GetOrCreateAddressAsync(request.ActionPerformedAtAddress, ct) : null;
 
         try
         {
             workEvent.ActualEndTime = request.ActualEndTime;
             workEvent.Status = WorkEventStatus.Completed;
             workEvent.LastUpdatedAt = DateTime.UtcNow;
-            await _workEventHistoryLogHandler.AddWorkEventHistoryLogAsync(workEvent.Id, WorkEventStatus.Completed, addressLocationId);
-            await _unitOfWork.CommitAsync();
+            _workEventHistoryLogHandler.AddWorkEventHistoryLog(workEvent.Id, WorkEventStatus.Completed, addressLocation);
+            await _unitOfWork.CommitAsync(ct);
+            await transaction.CommitAsync(ct);
         }
         catch (Exception ex)
         {
-            transaction.Rollback();
+            await transaction.RollbackAsync(ct);
             throw new Exception($"An error occurred while ending the work event task: {ex.Message}", ex);
         }        
 

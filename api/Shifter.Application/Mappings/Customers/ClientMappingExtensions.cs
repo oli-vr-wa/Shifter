@@ -17,6 +17,7 @@ public static class ClientMappingExtensions
     /// <returns>A ClientDto representing the mapped Client entity.</returns>
     public static ClientDto ToDto(this Client client) => new(
         client.Id,
+        client.Type,
         client.CompanyName,
         client.Abn,
         client.FirstName,
@@ -36,6 +37,7 @@ public static class ClientMappingExtensions
         contact.Id,
         contact.FirstName,
         contact.LastName,
+        contact.JobTitle,
         contact.Email,
         contact.PhoneNumber
     );
@@ -52,8 +54,11 @@ public static class ClientMappingExtensions
         client.Email,
         client.PhoneNumber,
         client!.Address != null ? client.Address.ShortAddress : null
-    );    
+    );
 
+    /// <summary>
+    /// Provides an expression to project a Client entity to a ClientListItemDto.
+    /// </summary>
     public static Expression<Func<Client, ClientListItemDto>> ProjectToListItem
     {
         get

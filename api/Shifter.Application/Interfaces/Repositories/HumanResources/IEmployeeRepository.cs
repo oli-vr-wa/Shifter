@@ -13,30 +13,29 @@ public interface IEmployeeRepository
     /// </summary>
     /// <param name="employeeId">The unique identifier of the Employee to retrieve.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the Employee if found; otherwise, null.</returns>
-    Task<Employee?> GetByIdAsync(Guid employeeId);
+    Task<Employee?> GetByIdAsync(Guid employeeId, CancellationToken ct = default);
 
     /// <summary>
-    /// Adds a new Employee to the repository asynchronously.
+    /// Adds a new Employee to the repository.
     /// </summary>
     /// <param name="employee">The Employee to add.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    Task AddAsync(Employee employee);
+    void Add(Employee employee);
 
     /// <summary>
     /// Retrieves all Employees from the repository asynchronously.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of EmployeeDto.</returns>
-    Task<IEnumerable<EmployeeDto>> GetAllAsync();
+    Task<IEnumerable<EmployeeDto>> GetAllAsync(CancellationToken ct = default);
 
     /// <summary>
     /// Retrieves all current Employees from the repository asynchronously.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of EmployeeDto.</returns>
-    Task<IEnumerable<EmployeeDto>> GetAllCurrentAsync();
+    Task<IEnumerable<EmployeeDto>> GetAllCurrentAsync(CancellationToken ct = default);
 
     /// <summary>
     /// Retrieves all terminated Employees from the repository asynchronously.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of EmployeeDto.</returns> 
-    Task<IEnumerable<EmployeeDto>> GetAllTerminatedAsync();
+    Task<IEnumerable<EmployeeDto>> GetAllTerminatedAsync(CancellationToken ct = default);
 }

@@ -14,46 +14,34 @@ public class AddressHandler(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <inheritdoc />
-    public async Task<int> AddOrUpdateAddressAsync(AddressDto addressDto)
+    public async Task<Address> GetOrCreateAddressAsync(AddressDto addressDto, CancellationToken ct = default)
     {
-        var existingAddress = _addressRepository.GetByPlaceId(addressDto.PlaceId);
+        var existingAddress = await _addressRepository.GetByPlaceIdAndStreetNumberAsync(addressDto.PlaceId, addressDto.StreetNumber, ct);
+
         if (existingAddress != null)
         {
-            // Update the existing address
-            existingAddress.DisplayName = addressDto.DisplayName;
-            existingAddress.StreetNumber = addressDto.StreetNumber;
-            existingAddress.StreetName = addressDto.StreetName;            
-            existingAddress.Suburb = addressDto.Suburb;
-            existingAddress.State = addressDto.State;
-            existingAddress.PostCode = addressDto.PostCode;
-            existingAddress.Country = addressDto.Country;
-            existingAddress.Latitude = addressDto.Latitude;
-            existingAddress.Longitude = addressDto.Longitude;
-            await _unitOfWork.CommitAsync();
-
-            return existingAddress.Id;
+            return existingAddress;
         }
         else
         {
-            var address = new Address
-            {
-                PlaceId = addressDto.PlaceId,
-                DisplayName = addressDto.DisplayName,
-                StreetNumber = addressDto.StreetNumber,
-                StreetName = addressDto.StreetName,
-                Suburb = addressDto.Suburb,
-                State = addressDto.State,
-                PostCode = addressDto.PostCode,
-                Country = addressDto.Country,
-                Latitude = addressDto.Latitude,
-                Longitude = addressDto.Longitude
-            };
-            
-            // Add the new address
-            await _addressRepository.Add(address);
-            await _unitOfWork.CommitAsync();
+            var address = Address.Create(
+                addressDto.PlaceId,
+                addressDto.DisplayName,
+                addressDto.StreetNumber,
+                addressDto.StreetName,
+                addressDto.Suburb,
+                addressDto.PostCode,
+                addressDto.State,
+                addressDto.Country,
+                addressDto.Latitude,
+                addressDto.Longitude
+            );
 
-            return address.Id;
+            // Add the new address
+            _addressRepository.Add(address);
+            await _unitOfWork.CommitAsync(ct);
+
+            return address;
         }
     }
 }

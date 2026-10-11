@@ -18,7 +18,7 @@ public interface IClientRepository
     /// <param name="client">The Client to add.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task AddAsync(Client client, CancellationToken ct);
+    void Add(Client client);
 
     /// <summary>
     /// Retrieves all Clients from the repository asynchronously.
