@@ -4,6 +4,8 @@ using Shifter.Application.Interfaces.Repositories.Customers;
 using Shifter.Application.Interfaces.Services.Customers;
 using Shifter.Application.Interfaces.Repositories.Core;
 using Shifter.Application.Interfaces.Services.Locations;
+using Shifter.Core.Entities.Common;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Shifter.Application.Services.Customers;
 
@@ -14,7 +16,7 @@ public class ClientCommandService(IClientRepository clientRepository, IAddressHa
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <inheritdoc />
-    public async Task<Guid> CreateAsync(ClientDto clientDto, CancellationToken ct = default)
+    public async Task<ServiceResult<Guid>> CreateAsync(ClientDto clientDto, CancellationToken ct = default)
     {
         var client = Client.Create(
             clientDto.Type, 
@@ -51,13 +53,15 @@ public class ClientCommandService(IClientRepository clientRepository, IAddressHa
         _clientRepository.Add(client);
         await _unitOfWork.CommitAsync(ct);
 
-        return client.Id;
+        return ServiceResult<Guid>.Success(client.Id);
     }
 
     /// <inheritdoc />
-    public async Task UpdateAsync(Guid guid, ClientDto clientDto, CancellationToken ct = default)
+    public async Task<ServiceResult<bool>> UpdateAsync(Guid guid, ClientDto clientDto, CancellationToken ct = default)
     {
-        var client = await _clientRepository.GetByIdAsync(guid, ct) ?? throw new KeyNotFoundException($"Client record not found.");
+        var client = await _clientRepository.GetByIdAsync(guid, ct);
+        if (client == null)
+            return ServiceResult<bool>.Failure($"Client not found.");
 
         client.Update(
             clientDto.Type,
@@ -76,5 +80,7 @@ public class ClientCommandService(IClientRepository clientRepository, IAddressHa
         }
 
         await _unitOfWork.CommitAsync(ct);
+
+        return ServiceResult<bool>.Success(true);
     }
 }

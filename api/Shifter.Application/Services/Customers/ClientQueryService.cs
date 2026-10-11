@@ -12,7 +12,7 @@ public class ClientQueryService(IClientRepository clientRepository) : IClientQue
     private readonly IClientRepository _clientRepository = clientRepository;
 
     /// <inheritdoc />
-    public async Task<ClientDto?> GetClientByIdAsync(Guid clientId, CancellationToken ct = default)
+    public async Task<ClientDto?> GetByIdAsync(Guid clientId, CancellationToken ct = default)
     {
         var client = await _clientRepository.GetByIdAsync(clientId, ct);
 

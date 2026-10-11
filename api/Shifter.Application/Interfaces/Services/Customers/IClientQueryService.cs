@@ -11,7 +11,7 @@ public interface IClientQueryService
     /// <param name="clientId">The unique identifier of the client.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The client DTO if found; otherwise, null.</returns>
-    Task<ClientDto?> GetClientByIdAsync(Guid clientId, CancellationToken ct);
+    Task<ClientDto?> GetByIdAsync(Guid clientId, CancellationToken ct);
 
     /// <summary>
     /// Gets a paginated list of clients based on the specified filter.
