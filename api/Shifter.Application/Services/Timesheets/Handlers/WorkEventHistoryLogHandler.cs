@@ -1,8 +1,7 @@
-﻿using Shifter.Application.DTOs.Location;
-using Shifter.Application.Interfaces.Repositories.Timesheets;
-using Shifter.Application.Interfaces.Services.Locations;
+﻿using Shifter.Application.Interfaces.Repositories.Timesheets;
 using Shifter.Application.Interfaces.Services.Timesheets;
 using Shifter.Application.Interfaces.Tenant;
+using Shifter.Core.Entities.Location;
 using Shifter.Core.Entities.Timesheets;
 using Shifter.Core.Entities.Timesheets.Enums;
 
@@ -16,31 +15,31 @@ public class WorkEventHistoryLogHandler(
     private readonly ITenantService _tenantService = tenantService;
 
     /// <inheritdoc />
-    public async Task AddWorkEventHistoryLogAsync(Guid workEventId, WorkEventStatus status, int? addressLocationId)
+    public void AddWorkEventHistoryLog(Guid workEventId, WorkEventStatus status, Address? addressLocation)
     {
         if (workEventId == Guid.Empty)        
             throw new ArgumentException("Work event ID cannot be empty.", nameof(workEventId));
 
         string description = GetDescriptionForStatus(status);;
 
-        var logEntry = InitializeWorkEventHistoryLog(status, description, addressLocationId);
+        var logEntry = InitializeWorkEventHistoryLog(status, description, addressLocation);
         logEntry.WorkEventId = workEventId;
 
-        await _workEventHistoryRepository.AddAsync(logEntry);
+        _workEventHistoryRepository.Add(logEntry);
     }
 
     /// <inheritdoc />
-    public async Task AddBreakEventHistoryLogAsync(Guid breakEventId, WorkEventStatus status, int? addressLocationId)
+    public void AddBreakEventHistoryLog(Guid breakEventId, WorkEventStatus status, Address? addressLocation)
     {
         if (breakEventId == Guid.Empty)
             throw new ArgumentException("Break event ID cannot be empty.", nameof(breakEventId));
 
         string description = GetDescriptionForStatus(status);
 
-        var logEntry = InitializeWorkEventHistoryLog(status, description, addressLocationId);
+        var logEntry = InitializeWorkEventHistoryLog(status, description, addressLocation);
         logEntry.BreakEventId = breakEventId;
 
-        await _workEventHistoryRepository.AddAsync(logEntry);
+        _workEventHistoryRepository.Add(logEntry);
     }
 
     /// <summary>
@@ -69,9 +68,9 @@ public class WorkEventHistoryLogHandler(
     /// </summary>
     /// <param name="status">The work event status.</param>
     /// <param name="description">The description of the work event history.</param>
-    /// <param name="addressId">The ID of the address associated with the work event history.</param>
+    /// <param name="addressLocation">The address location associated with the work event history.</param>
     /// <returns>A new instance of the <see cref="WorkEventHistory"/> class.</returns>
-    private WorkEventHistory InitializeWorkEventHistoryLog(WorkEventStatus status, string description, int? addressId)
+    private WorkEventHistory InitializeWorkEventHistoryLog(WorkEventStatus status, string description, Address? addressLocation)
     {
         return new WorkEventHistory
         {
@@ -80,7 +79,7 @@ public class WorkEventHistoryLogHandler(
             CreatedAt = DateTime.UtcNow,
             ActionPerformedAt = DateTime.UtcNow,
             ActionPerformedByUserId = _tenantService.GetCurrentUserId(),
-            ActionPerformedAtAddressId = addressId
+            ActionPerformedAtAddress = addressLocation
         };
     }
 }

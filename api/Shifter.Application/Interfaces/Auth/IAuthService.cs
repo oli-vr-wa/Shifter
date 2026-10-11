@@ -11,16 +11,18 @@ public interface IAuthService
     /// Registers a new user with the provided registration request and returns the result of the registration process.
     /// </summary>
     /// <param name="request">The registration request containing user details.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>The result of the registration process.</returns>
-    Task<IdentityResult> RegisterAsync(RegisterRequest request);
+    Task<IdentityResult> RegisterAsync(RegisterRequest request, CancellationToken ct = default);
 
     /// <summary>
     /// Confirms the email of a user with the specified user ID and token, returning the result of the confirmation process.
     /// </summary>
     /// <param name="userId">The ID of the user whose email is to be confirmed.</param>
     /// <param name="token">The email confirmation token.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>The result of the email confirmation process.</returns>
-    Task<IdentityResult> ConfirmEmailAsync(Guid userId, string token);
+    Task<IdentityResult> ConfirmEmailAsync(Guid userId, string token, CancellationToken ct = default);
 
     /// <summary>
     /// Validates the user credentials and returns the user if valid, otherwise returns null.
@@ -77,6 +79,8 @@ public interface IAuthService
     /// <summary>
     /// Retrieves the user response DTO (Data Transfer Object) containing user information such as ID, first name, last name, and email.
     /// </summary>
+    /// <param name="userId">The ID of the user for whom to retrieve the information.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>The user response DTO.</returns>
-    Task<UserResponse?> GetCurrentUserAsync(Guid userId);
+    Task<UserResponse?> GetCurrentUserAsync(Guid userId, CancellationToken ct = default);
 }

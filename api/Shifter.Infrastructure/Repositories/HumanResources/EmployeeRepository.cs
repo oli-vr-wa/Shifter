@@ -11,18 +11,18 @@ public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
     private readonly ShifterDbContext _context = context;
 
     /// <inheritdoc/>
-    public async Task AddAsync(Employee employee) =>
-        await _context.Employees.AddAsync(employee);
+    public void Add(Employee employee) =>
+        _context.Employees.Add(employee);
 
     /// <inheritdoc/>
-    public async Task<Employee?> GetByIdAsync(Guid employeeId) =>
+    public async Task<Employee?> GetByIdAsync(Guid employeeId, CancellationToken ct = default) =>
         await _context.Employees
             .Include(e => e.User)
             .ThenInclude(e => e!.EmployeeProfile)
-            .FirstOrDefaultAsync(e => e.Id == employeeId);
+            .FirstOrDefaultAsync(e => e.Id == employeeId, ct);
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
+    public async Task<IEnumerable<EmployeeDto>> GetAllAsync(CancellationToken ct = default)
     {
         return await _context.Employees
             .Where(e => e.User != null && e.User.EmployeeProfile != null)
@@ -36,11 +36,11 @@ public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
                 e.EmploymentStartDate,
                 e.User.Role
             ))
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<EmployeeDto>> GetAllCurrentAsync()
+    public async Task<IEnumerable<EmployeeDto>> GetAllCurrentAsync(CancellationToken ct = default)
     {
         return await _context.Employees
             .Where(e => e.User != null && e.User.EmployeeProfile != null && e.EmploymentTerminationDate == null)
@@ -54,11 +54,11 @@ public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
                 e.EmploymentStartDate,
                 e.User.Role
             ))
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<EmployeeDto>> GetAllTerminatedAsync()
+    public async Task<IEnumerable<EmployeeDto>> GetAllTerminatedAsync(CancellationToken ct = default)
     {
         return await _context.Employees
             .Where(e => e.User != null && e.User.EmployeeProfile != null && e.EmploymentTerminationDate != null)
@@ -72,7 +72,7 @@ public class EmployeeRepository(ShifterDbContext context) : IEmployeeRepository
                 e.EmploymentStartDate,
                 e.User.Role
             ))
-            .ToListAsync();
+            .ToListAsync(ct);
     }
     
 }

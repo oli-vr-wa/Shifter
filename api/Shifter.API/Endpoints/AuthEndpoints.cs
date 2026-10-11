@@ -22,9 +22,9 @@ public static class AuthEndpoints
         group.MapPost("/logout", Logout);
     }
 
-    private static async Task<IResult> RegisterAsync([FromBody] Application.DTOs.Identity.RegisterRequest request, IAuthService authService)
+    private static async Task<IResult> RegisterAsync([FromBody] Application.DTOs.Identity.RegisterRequest request, IAuthService authService, CancellationToken ct)
     {
-        var result = await authService.RegisterAsync(request);
+        var result = await authService.RegisterAsync(request, ct);
         if (!result.Succeeded)
         {
             return Results.BadRequest(result.Errors);
@@ -32,9 +32,9 @@ public static class AuthEndpoints
         return Results.Ok("User registered successfully. Please check your email to confirm your account.");
     }
 
-    private static async Task<IResult> ConfirmEmailAsync([FromQuery] Guid userId, [FromQuery] string token, IAuthService authService)
+    private static async Task<IResult> ConfirmEmailAsync([FromQuery] Guid userId, [FromQuery] string token, IAuthService authService, CancellationToken ct)
     {
-        var result = await authService.ConfirmEmailAsync(userId, token);
+        var result = await authService.ConfirmEmailAsync(userId, token, ct);
         if (!result.Succeeded)
         {
             return Results.BadRequest(result.Errors);
@@ -89,7 +89,7 @@ public static class AuthEndpoints
         return Results.Ok(user);
     }
 
-    private static async Task<IResult> GetCurrentUserAsync(ClaimsPrincipal userPrincipal, IAuthService authService)
+    private static async Task<IResult> GetCurrentUserAsync(ClaimsPrincipal userPrincipal, IAuthService authService, CancellationToken ct)
     {
         var userIdStr = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdStr)) return Results.Unauthorized();
@@ -97,7 +97,7 @@ public static class AuthEndpoints
         var userId = Guid.Parse(userIdStr);
         if (userId == Guid.Empty) return Results.Unauthorized();
 
-        var user = await authService.GetCurrentUserAsync(userId);
+        var user = await authService.GetCurrentUserAsync(userId, ct);
         
         if (user == null) return Results.Unauthorized();
 

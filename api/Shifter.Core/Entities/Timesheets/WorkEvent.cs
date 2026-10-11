@@ -1,5 +1,6 @@
 ﻿using Shifter.Core.Entities.Common;
 using Shifter.Core.Entities.Location;
+using Shifter.Core.Entities.Operations;
 using Shifter.Core.Entities.Tenant;
 using Shifter.Core.Entities.Timesheets.Enums;
 
@@ -20,6 +21,9 @@ public class WorkEvent : BaseEntity, IMultiTenant
     // Actual times to be used for tracking and reporting purposes. These times reflect the actual work performed.
     public DateTime? ActualStartTime { get; set; }
     public DateTime? ActualEndTime { get; set; }
+
+    public Guid JobId { get; set; }
+    public Job? Job { get; set; }
 
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

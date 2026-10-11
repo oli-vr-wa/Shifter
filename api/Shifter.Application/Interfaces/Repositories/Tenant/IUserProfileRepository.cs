@@ -9,5 +9,5 @@ public interface IUserProfileRepository
     /// This method does not commit changes to the database; it only adds the profile to the context.
     /// </summary>
     /// <param name="profile">The user profile to add.</param>
-    Task Add(UserProfile profile);
+    void Add(UserProfile profile);
 }

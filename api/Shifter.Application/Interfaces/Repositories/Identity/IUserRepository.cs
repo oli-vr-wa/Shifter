@@ -10,12 +10,12 @@ public interface IUserRepository
     /// </summary>
     /// <param name="email">The email of the user to retrieve.</param>
     /// <returns>The user if found; otherwise, null.</returns>
-    Task<User?> GetUserByEmailForAuthAsync(string email);
+    Task<User?> GetUserByEmailForAuthAsync(string email, CancellationToken ct = default);
 
     /// <summary>
     /// Gets a user by their unique identifier (userId).
     /// </summary>
     /// <param name="userId">The unique identifier of the user to retrieve.</param>
     /// <returns>The user if found; otherwise, null.</returns>
-    Task<User?> GetUserByIdAsync(Guid userId);
+    Task<User?> GetUserByIdAsync(Guid userId, CancellationToken ct = default);
 }

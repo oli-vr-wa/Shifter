@@ -34,7 +34,6 @@ public class AuthService(
     private readonly UserManager<User> _userManager = userManager;
     private readonly IConfiguration _configuration = configuration;
     private readonly IUserRepository _userRepository = userRepository;
-    private readonly IUserProfileRepository _userProfileRepository = userProfileRepository;
     private readonly ICompanyRepository _companyRepository = companyRepository;
     private readonly IEmployeeRepository _employeeRepository = employeeRepository;
     private readonly ICompanyHandler _companyHandler = companyHandler;
@@ -42,9 +41,9 @@ public class AuthService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <inheritdoc />
-    public async Task<IdentityResult> RegisterAsync(RegisterRequest request)
+    public async Task<IdentityResult> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
+        using var transaction = await _unitOfWork.BeginTransactionAsync(ct);
 
         try
         {
@@ -56,7 +55,7 @@ public class AuthService(
                 Name = request.CompanyName,
                 Abn = _companyHandler.FormatAbn(request.CompanyAbn)
             };
-            await _companyRepository.AddCompanyAsync(company);
+            _companyRepository.Add(company);
             await _unitOfWork.CommitAsync();
 
             // Create the UserProfile for the user
@@ -89,8 +88,8 @@ public class AuthService(
                 EmploymentStartDate = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
             };
-            await _employeeRepository.AddAsync(employee);
-            await _unitOfWork.CommitAsync();
+            _employeeRepository.Add(employee);
+            await _unitOfWork.CommitAsync(ct);
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token); // Encode the token to make it URL-safe
@@ -104,20 +103,20 @@ public class AuthService(
 
             await _emailService.SendAsync(user.Email, subject, body);
 
-            await transaction.CommitAsync();
+            await transaction.CommitAsync(ct);
             return IdentityResult.Success;
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(ct);
             throw new InvalidOperationException("An error occurred during registration.", ex);
         }
     }
 
     /// <inheritdoc />
-    public async Task<IdentityResult> ConfirmEmailAsync(Guid userId, string token)
+    public async Task<IdentityResult> ConfirmEmailAsync(Guid userId, string token, CancellationToken ct = default)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId);
+        var user = await _userRepository.GetUserByIdAsync(userId, ct);
         if (user == null) return IdentityResult.Failed(new IdentityError { Description = "User not found." });
 
         var cleanToken = token.Replace(" ", "+");
@@ -142,13 +141,6 @@ public class AuthService(
         if (user == null) return null;
         
         var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider, code);
-
-        // TODO: Remove this bypass in production. This is only for testing purposes.
-        // Bypass MFA verification for testing purposes if the code is "123456"
-        //if (code == "123456")
-        //{
-        //    isValid = true;
-        //}
 
         if (!isValid) return null;
 
@@ -224,9 +216,9 @@ public class AuthService(
     }
     
     /// <inheritdoc />
-    public async Task<UserResponse?> GetCurrentUserAsync(Guid id)
+    public async Task<UserResponse?> GetCurrentUserAsync(Guid id, CancellationToken ct = default)
     {
-        var user = await _userRepository.GetUserByIdAsync(id);
+        var user = await _userRepository.GetUserByIdAsync(id, ct);
         if (user == null) return null;
         return new UserResponse(
             user.Id,

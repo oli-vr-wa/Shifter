@@ -21,7 +21,7 @@ public class SchedulerService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <inheritdoc/>
-    public async Task<ServiceResult<bool>> ScheduleWorkEventAsync(ScheduleWorkEventRequest request)
+    public async Task<ServiceResult<bool>> ScheduleWorkEventAsync(ScheduleWorkEventRequest request, CancellationToken ct = default)
     {
         if (request == null)
             return ServiceResult<bool>.Failure("Request cannot be null.");
@@ -34,7 +34,7 @@ public class SchedulerService(
 
         try
         {
-            int? addressLocationId = request.Address != null ? await _addressHandler.AddOrUpdateAddressAsync(request.Address) : null;
+            var address = request.Address != null ? await _addressHandler.GetOrCreateAddressAsync(request.Address, ct) : null;
 
             var workEvent = new WorkEvent
             {
@@ -43,11 +43,11 @@ public class SchedulerService(
                 ScheduledEndTime = request.ScheduledEndTime,
                 Title = request.Title,
                 Description = request.Description,
-                AddressId = addressLocationId,
-                Notes = request.Notes
+                Notes = request.Notes,
+                Address = address,
             };
-            await _workEventRepository.AddAsync(workEvent);
-            await _unitOfWork.CommitAsync();
+            _workEventRepository.Add(workEvent);
+            await _unitOfWork.CommitAsync(ct);
             return ServiceResult<bool>.Success(true);
         }
         catch (Exception ex)

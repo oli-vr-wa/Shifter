@@ -24,9 +24,9 @@ public class EmployeeOnboardingService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <inheritdoc />
-    public async Task<ServiceResult<Guid>> OnboardAsync(OnboardEmployeeRequest request)
+    public async Task<ServiceResult<Guid>> OnboardAsync(OnboardEmployeeRequest request, CancellationToken ct = default)
     {
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
+        using var transaction = await _unitOfWork.BeginTransactionAsync(ct);
 
         try
         {
@@ -56,9 +56,9 @@ public class EmployeeOnboardingService(
                 JobPosition = request.JobPosition,
                 EmploymentStartDate = request.EmploymentStartDate
             };
-            await _employeeRepository.AddAsync(employee);
+            _employeeRepository.Add(employee);
 
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync(ct);
 
             var passwordSetupToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
@@ -71,15 +71,15 @@ public class EmployeeOnboardingService(
         }
         catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(ct);
             throw;
         }
     }
 
     /// <inheritdoc />
-    public async Task<ServiceResult<Guid>> UpdateAsync(Guid employeeId, OnboardEmployeeRequest request)
+    public async Task<ServiceResult<Guid>> UpdateAsync(Guid employeeId, OnboardEmployeeRequest request, CancellationToken ct = default)
     {
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
+        using var transaction = await _unitOfWork.BeginTransactionAsync(ct);
         try
         {
             var employee = await _employeeRepository.GetByIdAsync(employeeId);
@@ -103,14 +103,14 @@ public class EmployeeOnboardingService(
             // Update Employee
             employee.JobPosition = request.JobPosition;
             employee.EmploymentStartDate = request.EmploymentStartDate;
-            await _unitOfWork.CommitAsync();
-            await transaction.CommitAsync();
+            await _unitOfWork.CommitAsync(ct);
+            await transaction.CommitAsync(ct);
 
             return ServiceResult<Guid>.Success(employee.Id);
         }
         catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(ct);
             throw;
         }
     }

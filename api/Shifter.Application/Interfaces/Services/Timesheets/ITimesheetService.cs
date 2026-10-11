@@ -14,13 +14,15 @@ public interface ITimesheetService
     /// it will create a new work event task with the provided title and description.
     /// </summary>
     /// <param name="request">The request containing the details of the work event task to start.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>A ServiceResult indicating the success or failure of the operation.</returns>
-    Task<ServiceResult<bool>> StartWorkEventTaskAsync(StartWorkEventTaskRequest request);
+    Task<ServiceResult<bool>> StartWorkEventTaskAsync(StartWorkEventTaskRequest request, CancellationToken ct);
 
     /// <summary>
     /// Ends/clocks out a work event task for a user profile.
     /// </summary>
     /// <param name="request">The request containing the details of the work event task to end.</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>A ServiceResult indicating the success or failure of the operation.</returns>
-    Task<ServiceResult<bool>> EndWorkEventTaskAsync(EndWorkEventTaskRequest request);
+    Task<ServiceResult<bool>> EndWorkEventTaskAsync(EndWorkEventTaskRequest request, CancellationToken ct);
 }

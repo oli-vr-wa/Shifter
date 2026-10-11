@@ -19,33 +19,33 @@ public static class EmployeesEndpoints
         group.MapPut("/{employeeId:guid}", UpdateEmployeeAsync);
     }
 
-    private static async Task<IResult> GetAllEmployeesAsync(IEmployeeQueryService employeeQueryService)
+    private static async Task<IResult> GetAllEmployeesAsync(IEmployeeQueryService employeeQueryService, CancellationToken ct)
     {
-        var employees = await employeeQueryService.GetAllAsync();
+        var employees = await employeeQueryService.GetAllAsync(ct);
         return Results.Ok(employees);
     }
 
-    private static async Task<IResult> GetAllCurrentEmployeesAsync(IEmployeeQueryService employeeQueryService)
+    private static async Task<IResult> GetAllCurrentEmployeesAsync(IEmployeeQueryService employeeQueryService, CancellationToken ct)
     {
-        var employees = await employeeQueryService.GetAllCurrentAsync();
+        var employees = await employeeQueryService.GetAllCurrentAsync(ct);
         return Results.Ok(employees);
     }
 
-    private static async Task<IResult> GetAllTerminatedEmployeesAsync(IEmployeeQueryService employeeQueryService)
+    private static async Task<IResult> GetAllTerminatedEmployeesAsync(IEmployeeQueryService employeeQueryService, CancellationToken ct)
     {
-        var employees = await employeeQueryService.GetAllTerminatedAsync();
+        var employees = await employeeQueryService.GetAllTerminatedAsync(ct);
         return Results.Ok(employees);
     }
 
-    private static async Task<IResult> CreateEmployeeAsync(IEmployeeOnboardingService employeeOnboardingService, OnboardEmployeeRequest request)
+    private static async Task<IResult> CreateEmployeeAsync(IEmployeeOnboardingService employeeOnboardingService, OnboardEmployeeRequest request, CancellationToken ct)
     {
-        var employeeId = await employeeOnboardingService.OnboardAsync(request);
+        var employeeId = await employeeOnboardingService.OnboardAsync(request, ct);
         return Results.Created($"/api/employees/{employeeId}", employeeId);
     }
 
-    private static async Task<IResult> GetEmployeeByIdAsync(Guid employeeId, IEmployeeQueryService employeeQueryService)
+    private static async Task<IResult> GetEmployeeByIdAsync(Guid employeeId, IEmployeeQueryService employeeQueryService, CancellationToken ct)
     {
-        var employee = await employeeQueryService.GetByIdAsync(employeeId);
+        var employee = await employeeQueryService.GetByIdAsync(employeeId, ct);
         if (employee == null)
         {
             return Results.NotFound();
@@ -53,9 +53,9 @@ public static class EmployeesEndpoints
         return Results.Ok(employee);
     }
 
-    private static async Task<IResult> UpdateEmployeeAsync(Guid employeeId, OnboardEmployeeRequest request, IEmployeeOnboardingService employeeOnboardingService)
+    private static async Task<IResult> UpdateEmployeeAsync(Guid employeeId, OnboardEmployeeRequest request, IEmployeeOnboardingService employeeOnboardingService, CancellationToken ct)
     {
-        var result = await employeeOnboardingService.UpdateAsync(employeeId, request);
+        var result = await employeeOnboardingService.UpdateAsync(employeeId, request, ct);
 
         return result.IsSuccess
             ? Results.Ok()

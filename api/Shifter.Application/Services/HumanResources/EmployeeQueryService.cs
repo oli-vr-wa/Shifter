@@ -9,27 +9,27 @@ public class EmployeeQueryService(IEmployeeRepository employeeRepository) : IEmp
     private readonly IEmployeeRepository _employeeRepository = employeeRepository;
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
+    public async Task<IEnumerable<EmployeeDto>> GetAllAsync(CancellationToken ct = default)
     {
-        return await _employeeRepository.GetAllAsync();
+        return await _employeeRepository.GetAllAsync(ct);
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<EmployeeDto>> GetAllCurrentAsync()
+    public async Task<IEnumerable<EmployeeDto>> GetAllCurrentAsync(CancellationToken ct = default)
     {
-        return await _employeeRepository.GetAllCurrentAsync();
+        return await _employeeRepository.GetAllCurrentAsync(ct);
     }
     
     /// <inheritdoc/>
-    public async Task<IEnumerable<EmployeeDto>> GetAllTerminatedAsync()
+    public async Task<IEnumerable<EmployeeDto>> GetAllTerminatedAsync(CancellationToken ct = default)
     {
-        return await _employeeRepository.GetAllTerminatedAsync();
+        return await _employeeRepository.GetAllTerminatedAsync(ct);
     }
 
     /// <inheritdoc/>
-    public async Task<EmployeeDto?> GetByIdAsync(Guid employeeId)
+    public async Task<EmployeeDto?> GetByIdAsync(Guid employeeId, CancellationToken ct = default)
     {
-        var employee = await _employeeRepository.GetByIdAsync(employeeId);
+        var employee = await _employeeRepository.GetByIdAsync(employeeId, ct);
         if (employee == null || employee.User == null || employee.User.EmployeeProfile == null)
         {
             return null;

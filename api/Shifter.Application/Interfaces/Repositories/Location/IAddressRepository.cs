@@ -8,13 +8,20 @@ public interface IAddressRepository
     /// Adds a new address to the repository.
     /// </summary>
     /// <param name="address">The address to add.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    Task Add(Address address);
+    void Add(Address address);
 
     /// <summary>
     /// Retrieves an address by its PlaceId.
     /// </summary>
     /// <param name="placeId">The PlaceId of the address to retrieve.</param>
     /// <returns>The address with the specified PlaceId, or null if not found.</returns>
-    Address? GetByPlaceId(string placeId);
+    Task<Address?> GetByPlaceIdAsync(string placeId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Retrieves an address by its PlaceId and StreetNumber.
+    /// </summary>
+    /// <param name="placeId">The PlaceId of the address to retrieve.</param>
+    /// <param name="streetNumber">The StreetNumber of the address to retrieve.</param>
+    /// <returns>The address with the specified PlaceId and StreetNumber, or null if not found.</returns>
+    Task<Address?> GetByPlaceIdAndStreetNumberAsync(string placeId, string streetNumber, CancellationToken ct = default);
 }

@@ -9,7 +9,7 @@ public interface ICompanyRepository
     /// This method does not commit the changes to the database; it only adds the company to the context.
     /// </summary>
     /// <param name="company">The company to add.</param>
-    Task AddCompanyAsync(Company company);
+    void Add(Company company);
 
     /// <summary>
     /// Checks if a company with the specified ABN exists.

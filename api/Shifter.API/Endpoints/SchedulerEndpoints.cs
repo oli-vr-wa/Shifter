@@ -12,9 +12,9 @@ public static class SchedulerEndpoints
         group.MapPost("/schedule-work-event", ScheduleWorkEventAsync);
     }
 
-    private static async Task<IResult> ScheduleWorkEventAsync([FromBody] ScheduleWorkEventRequest request, ISchedulerService schedulerService)
+    private static async Task<IResult> ScheduleWorkEventAsync([FromBody] ScheduleWorkEventRequest request, ISchedulerService schedulerService, CancellationToken ct)
     {
-        var result = await schedulerService.ScheduleWorkEventAsync(request);
+        var result = await schedulerService.ScheduleWorkEventAsync(request, ct);
         if (!result.IsSuccess)
         {
             return Results.BadRequest(result.Error);
