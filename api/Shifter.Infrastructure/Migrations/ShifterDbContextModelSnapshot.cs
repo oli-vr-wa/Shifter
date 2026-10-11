@@ -189,6 +189,98 @@ namespace Shifter.Infrastructure.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("Shifter.Core.Entities.Customers.Client", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Abn")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("AddressId1")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId1");
+
+                    b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("Shifter.Core.Entities.Customers.ClientContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JobTitle")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("ClientContacts");
+                });
+
             modelBuilder.Entity("Shifter.Core.Entities.HumanResources.Employee", b =>
                 {
                     b.Property<Guid>("Id")
@@ -365,6 +457,63 @@ namespace Shifter.Infrastructure.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("Shifter.Core.Entities.Operations.Job", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("Deadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PurchaseOrderNumber")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ReceivedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("SiteAddressId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("TargetStartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("SiteAddressId");
+
+                    b.ToTable("Jobs");
+                });
+
             modelBuilder.Entity("Shifter.Core.Entities.Tenant.Company", b =>
                 {
                     b.Property<Guid>("Id")
@@ -511,6 +660,9 @@ namespace Shifter.Infrastructure.Migrations
                         .HasMaxLength(600)
                         .HasColumnType("character varying(600)");
 
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -545,6 +697,8 @@ namespace Shifter.Infrastructure.Migrations
                     b.HasIndex("AssignedByUserId");
 
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("JobId");
 
                     b.HasIndex("UserProfileId");
 
@@ -652,6 +806,26 @@ namespace Shifter.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Shifter.Core.Entities.Customers.Client", b =>
+                {
+                    b.HasOne("Shifter.Core.Entities.Location.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId1");
+
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("Shifter.Core.Entities.Customers.ClientContact", b =>
+                {
+                    b.HasOne("Shifter.Core.Entities.Customers.Client", "Client")
+                        .WithMany("Contacts")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("Shifter.Core.Entities.HumanResources.Employee", b =>
                 {
                     b.HasOne("Shifter.Core.Entities.Tenant.Company", "Company")
@@ -680,6 +854,23 @@ namespace Shifter.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Shifter.Core.Entities.Operations.Job", b =>
+                {
+                    b.HasOne("Shifter.Core.Entities.Customers.Client", "Client")
+                        .WithMany("Jobs")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Shifter.Core.Entities.Location.Address", "SiteAddress")
+                        .WithMany()
+                        .HasForeignKey("SiteAddressId");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("SiteAddress");
                 });
 
             modelBuilder.Entity("Shifter.Core.Entities.Tenant.UserProfile", b =>
@@ -728,6 +919,12 @@ namespace Shifter.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Shifter.Core.Entities.Operations.Job", "Job")
+                        .WithMany("WorkEvents")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Shifter.Core.Entities.Tenant.UserProfile", "UserProfile")
                         .WithMany()
                         .HasForeignKey("UserProfileId")
@@ -739,6 +936,8 @@ namespace Shifter.Infrastructure.Migrations
                     b.Navigation("AssignedByUser");
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("Job");
 
                     b.Navigation("UserProfile");
                 });
@@ -772,9 +971,21 @@ namespace Shifter.Infrastructure.Migrations
                     b.Navigation("WorkEvent");
                 });
 
+            modelBuilder.Entity("Shifter.Core.Entities.Customers.Client", b =>
+                {
+                    b.Navigation("Contacts");
+
+                    b.Navigation("Jobs");
+                });
+
             modelBuilder.Entity("Shifter.Core.Entities.Identity.User", b =>
                 {
                     b.Navigation("EmployeeProfile");
+                });
+
+            modelBuilder.Entity("Shifter.Core.Entities.Operations.Job", b =>
+                {
+                    b.Navigation("WorkEvents");
                 });
 
             modelBuilder.Entity("Shifter.Core.Entities.Tenant.Company", b =>

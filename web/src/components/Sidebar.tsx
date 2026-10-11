@@ -32,13 +32,13 @@ export const Sidebar = () => {
                         </NavLink>
                     </li>
                     <li>
-                        <NavLink to="/employees" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
+                        <NavLink to="/schedule" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
                             <CalendarIcon className="size-5" />
                             Schedule
                         </NavLink>
                     </li>
                     <li>
-                        <NavLink to="/employees" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
+                        <NavLink to="/timesheets" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
                             <ClockSolidIcon className="size-5" />
                             Timesheets
                         </NavLink>
@@ -50,13 +50,13 @@ export const Sidebar = () => {
                         </NavLink>
                     </li>                    
                     <li>
-                        <NavLink to="/employees" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
+                        <NavLink to="/reports" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
                             <DocumentTextIcon className="size-5" />
                             Reports
                         </NavLink>
                     </li>
                     <li>
-                        <NavLink to="/employees" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
+                        <NavLink to="/settings" className={({ isActive }) => isActive ? `font-bold ${sidebarItemClassNames}` : sidebarItemClassNames}>
                             <Cog8ToothIcon className="size-5" />
                             Settings
                         </NavLink>
