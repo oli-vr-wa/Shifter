@@ -16,7 +16,7 @@ public static class ClientsEndpoints
         group.MapPut("/{clientId:guid}", UpdateClientAsync);
     }
 
-    private static async Task<IResult> GetAllClientsAsync(ClientQueryFilter filter, IClientQueryService clientQueryService, CancellationToken ct)
+    private static async Task<IResult> GetAllClientsAsync([FromBody] ClientQueryFilter filter, IClientQueryService clientQueryService, CancellationToken ct)
     {
         var clients = await clientQueryService.GetClientsAsync(filter, ct);
         return Results.Ok(clients);
