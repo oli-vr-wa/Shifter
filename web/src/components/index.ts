@@ -4,4 +4,6 @@ export { default as Button } from './Button';
 export { default as Link } from './Link';
 
 export { FormField } from './form-components/FormField';
-export { FormSelect } from './form-components/FormSelect';  
+export { FormSelect } from './form-components/FormSelect'; 
+
+export { Sidebar } from './layouts/Sidebar';
