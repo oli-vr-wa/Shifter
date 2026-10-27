@@ -1,20 +1,17 @@
 ﻿namespace Shifter.Application.DTOs.Common;
 
-public abstract record QueryFilterBase
+public abstract record QueryFilterBase(
+    string? SearchTerm,
+    int PageNumber,
+    int PageSize,
+    string? SortColumn,
+    bool SortDescending)
 {
     private const int MaxPageSize = 100;
-    private int _pageSize = 20;
+    private const int DefaultPageSize = 20;
 
-    public int PageNumber { get; init; } = 1;
 
-    public int PageSize
-    {
-        get => _pageSize;
-        init => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
-    }
+    public int PageNumber { get; } = Math.Max(1, PageNumber);
 
-    public string? SortColumn { get; init; }
-    public bool SortDescending { get; init; }
-
-    public string? SearchTerm { get; init; }
+    public int PageSize { get; } = PageSize < 1 ? DefaultPageSize : Math.Min(PageSize, MaxPageSize);
 }

@@ -1,25 +1,5 @@
 import { z } from "zod";
-
-const abnWeights = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
-
-const abnSchema =  z
-    .string()    
-    .default("")
-    .transform((val) => val.replace(/\D/g, ""))
-    .pipe(                
-        z.string()
-            .refine(
-            (val) => {
-                if (val.length !== 11) return false;
-                const digits = val.split("").map(Number);
-                digits[0] -= 1;
-                const sum = digits.reduce((acc, digit, idx) => acc + digit * abnWeights[idx], 0);
-                return sum % 89 === 0;
-            },
-            { message: "Invalid ABN" }
-            )
-            .transform((val) => `${val.slice(0, 2)} ${val.slice(2, 5)} ${val.slice(5, 8)} ${val.slice(8, 11)}`)
-);
+import { abnSchema } from "@/shared/validation/abn";
 
 export const registerRequestSchema = z.object({
     firstName: z.string().min(1, { message: "First name is required" }),

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Shifter.Application.DTOs.Customers;
 using Shifter.Application.Interfaces.Services.Customers;
+using Shifter.Core.Entities.Customers;
 
 namespace Shifter.API.Endpoints;
 
@@ -9,14 +10,17 @@ public static class ClientsEndpoints
     public static void MapClientsEndpoints(this IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup("/api/clients");
-        // Clients lists 
-        group.MapGet("/", GetAllClientsAsync);
+
+        group.MapGet("", GetAllClientsAsync);
         group.MapGet("/{clientId:guid}", GetClientByIdAsync);
         group.MapPost("/", CreateClientAsync);
         group.MapPut("/{clientId:guid}", UpdateClientAsync);
     }
 
-    private static async Task<IResult> GetAllClientsAsync([FromBody] ClientQueryFilter filter, IClientQueryService clientQueryService, CancellationToken ct)
+    private static async Task<IResult> GetAllClientsAsync(
+        [AsParameters] ClientQueryFilter filter,
+        IClientQueryService clientQueryService = null!,
+        CancellationToken ct = default)
     {
         var clients = await clientQueryService.GetClientsAsync(filter, ct);
         return Results.Ok(clients);

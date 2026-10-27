@@ -1,5 +1,5 @@
 import shifterLogo from "@/assets/shifter-logo-v1.svg";
-import { Navigate, NavLink } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { ArrowLeftStartOnRectangleIcon, DocumentTextIcon, ClockIcon as ClockSolidIcon, CalendarIcon, Cog8ToothIcon, ChartBarIcon, UsersIcon as SolidUsersIcon, BriefcaseIcon, UserGroupIcon } from '@heroicons/react/24/solid';
 import { useAuth } from "@/features/auth";
 import { SidebarItem } from "./SidebarItem";
