@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
-import type { Employee } from "@/types/models/employee";
+import type { Employee } from "@/shared/types/employee";
 import { CalendarIcon, EnvelopeIcon, PencilSquareIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";

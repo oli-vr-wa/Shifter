@@ -1,5 +1,5 @@
 import apiClient from "@/lib/client";
-import type { Employee } from "@/types/models/employee";
+import type { Employee } from "@/shared/types/employee";
 import type { EmployeeRequest } from "../types";
 
 export const employeeService = {

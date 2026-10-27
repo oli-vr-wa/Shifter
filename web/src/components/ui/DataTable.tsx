@@ -11,6 +11,9 @@ export interface ColumnDef<T> {
 export interface DataTableProps<T> {
     columns: ColumnDef<T>[];
     data: T[];
+    getRowKey?: (row: T, index: number) => string;
+    emptyMessage?: string;
+    compact?: boolean;
     isLoading?: boolean;
     isLoadError?: boolean;
     // Optional toolbar props
@@ -25,6 +28,9 @@ export interface DataTableProps<T> {
 export function DataTable<T>({ 
     columns, 
     data,
+    getRowKey,
+    emptyMessage,
+    compact = false,
     showToolbar = false,
     isLoading = false,
     isLoadError = false,
@@ -34,6 +40,9 @@ export function DataTable<T>({
     showFilters = false,
     onFilterClick
 }: DataTableProps<T>) {
+    const cellPadding = compact ? "px-3 py-2 text-sm" : "px-6 py-4";
+    const headerPadding = compact ? "px-3 py-2" : "px-6 py-4";
+
     return (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
 
@@ -70,7 +79,7 @@ export function DataTable<T>({
                             {columns.map((col, index) => (
                                 <th
                                     key={index} 
-                                    className={`px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider ${col.className || ''}`}
+                                    className={`${headerPadding} text-xs font-medium text-gray-500 uppercase tracking-wider ${col.className || ''}`}
                                 >
                                     {col.header}
                                 </th>
@@ -79,16 +88,16 @@ export function DataTable<T>({
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {data.map((row, rowIndex) => (
-                            <tr key={rowIndex} className="hover:bg-gray-50 transition-colors">
+                            <tr key={getRowKey ? getRowKey(row, rowIndex) : rowIndex} className="hover:bg-gray-50 transition-colors">
                             {columns.map((col, colIndex) => (
                                 <td 
                                     key={colIndex} 
-                                    className={`px-6 py-4 ${col.className || ''}`}
+                                    className={`${cellPadding} ${col.className || ''}`}
                                     >
                                     {/* If a custom cell renderer is provided, use it. Otherwise, print the raw data. */}
                                     {col.cell 
                                         ? col.cell(row) 
-                                        : (col.accessorKey ? String(row[col.accessorKey]) : null)
+                                        : (col.accessorKey ? String(row[col.accessorKey] ?? "") : null)
                                     }
                                 </td>
                             ))}
@@ -104,6 +113,11 @@ export function DataTable<T>({
                 {isLoadError && (
                     <div className="p-4 text-center text-red-500">
                         Error loading data.
+                    </div>
+                )}
+                {!isLoading && !isLoadError && data.length === 0 && emptyMessage && (
+                    <div className="p-4 text-center text-gray-500">
+                        {emptyMessage}
                     </div>
                 )}
             </div>

@@ -79,6 +79,51 @@ public class ClientCommandService(IClientRepository clientRepository, IAddressHa
             client.SetAddress(address);
         }
 
+        if (clientDto.Contacts is not null)
+        {
+            var incomingContactIds = clientDto.Contacts
+                .Where(contact => contact.Id != Guid.Empty)
+                .Select(contact => contact.Id)
+                .ToHashSet();
+
+            var contactsToRemove = client.Contacts
+                .Where(contact => !incomingContactIds.Contains(contact.Id))
+                .ToList();
+
+            foreach (var contact in contactsToRemove)
+            {
+                client.Contacts.Remove(contact);
+            }
+
+            foreach (var contactDto in clientDto.Contacts)
+            {
+                var existingContact = client.Contacts.FirstOrDefault(contact => contact.Id == contactDto.Id);
+
+                if (existingContact is not null)
+                {
+                    existingContact.Update(
+                        contactDto.FirstName,
+                        contactDto.LastName,
+                        contactDto.JobTitle,
+                        contactDto.Email,
+                        contactDto.PhoneNumber
+                    );
+                    continue;
+                }
+
+                var newContact = ClientContact.Create(
+                    client.Id,
+                    contactDto.FirstName,
+                    contactDto.LastName,
+                    contactDto.JobTitle,
+                    contactDto.Email,
+                    contactDto.PhoneNumber
+                );
+
+                client.AddContact(newContact);
+            }
+        }
+
         await _unitOfWork.CommitAsync(ct);
 
         return ServiceResult<bool>.Success(true);

@@ -29,6 +29,9 @@ public class ClientQueryService(IClientRepository clientRepository) : IClientQue
     /// <inheritdoc />
     public async Task<PageResult<ClientListItemDto>> GetClientsAsync(ClientQueryFilter filter, CancellationToken ct = default)
     {
+        var safePageNumber = filter.PageNumber <= 0 ? 1 : filter.PageNumber;
+        var safePageSize = filter.PageSize <= 0 ? 20 : filter.PageSize;
+
         var query = _clientRepository.GetQueryable();
 
         if (!string.IsNullOrEmpty(filter.SearchTerm))
@@ -57,11 +60,11 @@ public class ClientQueryService(IClientRepository clientRepository) : IClientQue
         };
 
         var items = await query
-            .Skip((filter.PageNumber - 1) * filter.PageSize)
-            .Take(filter.PageSize)
+            .Skip((safePageNumber - 1) * safePageSize)
+            .Take(safePageSize)
             .Select(ClientMappingExtensions.ProjectToListItem)
             .ToListAsync(ct);
 
-        return new PageResult<ClientListItemDto> (items, totalCount, filter.PageNumber, filter.PageSize);
+        return new PageResult<ClientListItemDto>(items, totalCount, safePageNumber, safePageSize);
     }
 }
