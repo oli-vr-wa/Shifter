@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Button, FormField, FormSelect } from '@/components';
+import { AddressSearch, Button, FormField, FormSelect } from '@/components';
 import { ClientType, clientRequestSchema, type ClientRequest } from '@/features/clients/types';
 import { ClientContactsSection } from './ClientContactsSection';
 import { useSaveClient } from '../hooks/useSaveClient';
@@ -117,6 +117,16 @@ export const ClientForm = ({ initialData, onSuccess, onCancel }: ClientFormProps
             placeholder="0412 345 678"
             error={errors.phoneNumber?.message}
             {...form.register('phoneNumber')}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <AddressSearch
+            value={form.watch('address') ?? null}
+            onChange={(selectedAddress) => {
+              form.setValue('address', selectedAddress, { shouldValidate: true, shouldDirty: true });
+            }}
+            error={errors.address?.message}
           />
         </div>
 
