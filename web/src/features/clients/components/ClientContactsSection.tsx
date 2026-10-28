@@ -50,6 +50,8 @@ export const ClientContactsSection = ({ control, error }: { control: Control<Cli
             </div>
 
             {isAdding && <ClientContactForm onAdd={handleAdd} onCancel={() => setIsAdding(false)} />}
+            
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
             <DataTable
                 columns={columns}
