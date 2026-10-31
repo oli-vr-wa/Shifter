@@ -5,6 +5,6 @@ export { default as Link } from './Link';
 
 export { FormField } from './form-components/FormField';
 export { FormSelect } from './form-components/FormSelect';
-export { AddressSearch } from './AddressSearch';
+export { AddressSearch } from './ui/address-search/AddressSearch';
 
 export { Sidebar } from './layouts/Sidebar';
