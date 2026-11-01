@@ -24,7 +24,7 @@
 import { useState, useId, useRef, type KeyboardEvent } from 'react';
 import type { Address } from '@/shared/types';
 import Input from '../../Input';
-import { usePlacesAutocomplete, type SuggestionItem } from './usePlaceAutocomplete';
+import { usePlacesAutocomplete, type SuggestionItem } from './usePlacesAutocomplete';
 
 interface AddressSearchProps {
   value?: Address | null;
