@@ -1,0 +1,38 @@
+name: Web tests
+ 
+on:
+  # Runs on every pull request, so problems show up BEFORE merging.
+  pull_request:
+    branches: [main]
+  # Runs again after a merge (a merge is a push to main), as a safety net.
+  push:
+    branches: [main]
+ 
+# Cancel an older run of the same branch/PR when a newer commit is pushed.
+concurrency:
+  group: web-tests-${{ github.ref }}
+  cancel-in-progress: true
+ 
+jobs:
+  test:
+    runs-on: ubuntu-latest
+ 
+    defaults:
+      run:
+        # The frontend lives in the web/ folder, not the repo root.
+        working-directory: web
+ 
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+ 
+      # Clean install from package-lock.json (faster and stricter than `npm install`).
+      - run: npm ci
+ 
+      - name: Unit tests
+        run: npm run test:run
