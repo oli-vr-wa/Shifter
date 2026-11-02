@@ -27,12 +27,15 @@ jobs:
  
       - uses: actions/setup-node@v4
         with:
-          node-version: 24 
+          node-version: 26 
           cache: npm
           cache-dependency-path: web/package-lock.json
  
       # Clean install from package-lock.json (faster and stricter than `npm install`).
       - run: npm ci
+
+      - name: Build
+        run: npm run build
  
       - name: Unit tests
         run: npm run test:run
