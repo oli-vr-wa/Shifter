@@ -7,4 +7,5 @@
   <Project Path="Shifter.Application/Shifter.Application.csproj" Id="542b88aa-f83d-41a8-96e2-8e3c0edb85b7" />
   <Project Path="Shifter.Core/Shifter.Core.csproj" Id="97af773c-4d3f-407d-b614-9c2b716715f4" />
   <Project Path="Shifter.Infrastructure/Shifter.Infrastructure.csproj" Id="a978021d-7462-416a-a483-dac04d97f3a7" />
+  <Project Path="Shifter.Test/Shifter.Test.csproj" />
 </Solution>
