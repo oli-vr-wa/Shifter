@@ -24,7 +24,6 @@ public class AuthService(
     UserManager<User> userManager, 
     IConfiguration configuration,
     IUserRepository userRepository,
-    IUserProfileRepository userProfileRepository,
     ICompanyRepository companyRepository,
     IEmployeeRepository employeeRepository,
     ICompanyHandler companyHandler,
