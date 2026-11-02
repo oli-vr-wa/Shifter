@@ -2,13 +2,16 @@ name: .NET CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
 
     steps:
     - name: Checkout code
@@ -17,7 +20,7 @@ jobs:
     - name: Setup .NET 10
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
+        dotnet-version: 10.0.x
 
     - name: Restore dependencies
       run: dotnet restore
