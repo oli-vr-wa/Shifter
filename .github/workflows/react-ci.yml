@@ -1,4 +1,4 @@
-name: Web tests
+name: React CI
  
 on:
   # Runs on every pull request, so problems show up BEFORE merging.
@@ -10,7 +10,7 @@ on:
  
 # Cancel an older run of the same branch/PR when a newer commit is pushed.
 concurrency:
-  group: web-tests-${{ github.ref }}
+  group: react-ci-${{ github.ref }}
   cancel-in-progress: true
  
 jobs:
