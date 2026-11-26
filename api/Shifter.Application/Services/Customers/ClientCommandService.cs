@@ -5,7 +5,6 @@ using Shifter.Application.Interfaces.Services.Customers;
 using Shifter.Application.Interfaces.Repositories.Core;
 using Shifter.Application.Interfaces.Services.Locations;
 using Shifter.Core.Entities.Common;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Shifter.Application.Services.Customers;
 

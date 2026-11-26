@@ -27,4 +27,56 @@ public class Job : BaseEntity, IMultiTenant
     public Address? SiteAddress { get; set; }
 
     public ICollection<WorkEvent> WorkEvents { get; set; } = new List<WorkEvent>();
+
+    public static Job Create(string title, string? description, string? purchaseOrderNumber, JobPriority priority, JobStatus status, DateTime? receivedDate, DateTime? targetStartDate, DateTime? deadline, DateTime? completionDate)
+    {
+        var job = new Job
+        {
+            Title = title,
+            Description = description,
+            PurchaseOrderNumber = purchaseOrderNumber,
+            Priority = priority,
+            Status = status,
+            ReceivedDate = receivedDate,
+            TargetStartDate = targetStartDate,
+            Deadline = deadline,
+            CompletionDate = completionDate,
+        };
+
+        job.Validate();
+        return job;
+    }
+
+    public void Update(string title, string? description, string? purchaseOrderNumber, JobPriority priority, JobStatus status, DateTime? receivedDate, DateTime? targetStartDate, DateTime? deadline, DateTime? completionDate)
+    {
+        Title = title;
+        Description = description;
+        PurchaseOrderNumber = purchaseOrderNumber;
+        Priority = priority;
+        Status = status;
+        ReceivedDate = receivedDate;
+        TargetStartDate = targetStartDate;
+        Deadline = deadline;
+        CompletionDate = completionDate;
+
+        Validate();
+    }
+
+    private void Validate()
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(Title, nameof(Title));        
+
+        if (ReceivedDate.HasValue && TargetStartDate.HasValue && ReceivedDate > TargetStartDate)
+        {
+            throw new ArgumentException("Received date cannot be later than target start date.");
+        }
+        if (TargetStartDate.HasValue && Deadline.HasValue && TargetStartDate > Deadline)
+        {
+            throw new ArgumentException("Target start date cannot be later than deadline.");
+        }
+        if (Deadline.HasValue && CompletionDate.HasValue && Deadline > CompletionDate)
+        {
+            throw new ArgumentException("Deadline cannot be later than completion date.");
+        }
+    }
 }
