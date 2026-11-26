@@ -16,7 +16,7 @@ public static class EmployeesEndpoints
         // Create, Get, Update
         group.MapPost("/", CreateEmployeeAsync); 
         group.MapGet("/{employeeId:guid}", GetEmployeeByIdAsync);
-        group.MapPut("/{employeeId:guid}", UpdateEmployeeAsync);
+        group.MapPatch("/{employeeId:guid}", UpdateEmployeeAsync);
     }
 
     private static async Task<IResult> GetAllEmployeesAsync(IEmployeeQueryService employeeQueryService, CancellationToken ct)

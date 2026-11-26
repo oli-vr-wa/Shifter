@@ -13,7 +13,7 @@ public static class OperationsEndpoints
         group.MapGet("/jobs/{jobId:guid}", GetJobByIdAsync);
         group.MapGet("/clients/{clientId:guid}/jobs", GetJobsByClientIdAsync);
         group.MapPost("/jobs", CreateJobAsync);
-        group.MapPut("/jobs/{jobId:guid}", UpdateJobAsync);
+        group.MapPatch("/jobs/{jobId:guid}", UpdateJobAsync);
     }
 
     private static async Task<IResult> GetAllJobsAsync([AsParameters] JobQueryFilter filter, IJobQueryService jobQueryService, CancellationToken ct)

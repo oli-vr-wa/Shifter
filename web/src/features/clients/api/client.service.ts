@@ -68,5 +68,5 @@ export const clientService = {
     }),
   getById: (id: string) => apiClient.get<ClientRequest>(`/clients/${id}`),
   create: (data: ClientRequest) => apiClient.post('/clients', data),
-  update: (id: string, data: ClientRequest) => apiClient.put(`/clients/${id}`, data),
+  update: (id: string, data: ClientRequest) => apiClient.patch(`/clients/${id}`, data),
 };
