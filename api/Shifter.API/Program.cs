@@ -146,6 +146,7 @@ app.MapEmployeesEndpoints();
 app.MapSchedulerEndpoints();
 app.MapTimesheetServiceEndpoints();
 app.MapClientsEndpoints();
+app.MapOperationsEndpoints();
 
 // Auto-apply migrations
 using (var scope = app.Services.CreateScope())

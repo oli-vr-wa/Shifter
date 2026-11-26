@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <Folder Include="API\" />
-    <Folder Include="Application\" />
     <Folder Include="Core\" />
     <Folder Include="Infrastructure\" />
   </ItemGroup>

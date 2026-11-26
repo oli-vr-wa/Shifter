@@ -39,4 +39,10 @@ public class JobRepository(ShifterDbContext dbContext) : IJobRepository
         await _dbContext.Jobs
             .Where(m => m.Status != JobStatus.Completed && m.Status != JobStatus.Cancelled)
             .ToListAsync(ct);
+
+    /// <inheritdoc />
+    public IQueryable<Job> GetQueryable()
+    {
+        return _dbContext.Jobs.AsQueryable();
+    }
 }

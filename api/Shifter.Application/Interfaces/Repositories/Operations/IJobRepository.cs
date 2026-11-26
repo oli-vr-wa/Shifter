@@ -48,4 +48,11 @@ public interface IJobRepository
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of uncompleted jobs.</returns>
     Task<IEnumerable<Job>> GetUncompletedJobsAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets a queryable sequence of jobs.  
+    /// </summary>
+    /// <remarks>Execution is deferred until the query is enumerated.</remarks>
+    /// <returns>An <see cref="IQueryable{T}"/> that represents jobs and supports further query composition.</returns>
+    IQueryable<Job> GetQueryable();
 }
