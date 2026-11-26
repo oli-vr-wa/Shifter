@@ -14,7 +14,7 @@ public static class ClientsEndpoints
         group.MapGet("", GetAllClientsAsync);
         group.MapGet("/{clientId:guid}", GetClientByIdAsync);
         group.MapPost("/", CreateClientAsync);
-        group.MapPut("/{clientId:guid}", UpdateClientAsync);
+        group.MapPatch("/{clientId:guid}", UpdateClientAsync);
     }
 
     private static async Task<IResult> GetAllClientsAsync(
