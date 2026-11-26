@@ -19,7 +19,7 @@ public class JobCommandServiceTests
     private readonly IUnitOfWork _unitOfWork;
     private readonly JobCommandService _sut;
 
-    private readonly Guid _clientId = Guid.NewGuid();
+    private readonly Guid _clientId;
 
     public JobCommandServiceTests()
     {
@@ -30,13 +30,12 @@ public class JobCommandServiceTests
         _unitOfWork.CommitAsync(Arg.Any<CancellationToken>()).Returns(1);
 
         _sut = new JobCommandService(_jobRepository, _addressHandler, _unitOfWork);
+        _clientId = Guid.NewGuid();
     }
 
     [Fact]
     public async Task CreateAsync_WhenJobIsValid_AddsJobAndReturnsSuccess()
     {
-        var clientId = Guid.NewGuid();
-
         var jobDto = new JobDto(
             Guid.Empty,
             _clientId,
@@ -63,6 +62,28 @@ public class JobCommandServiceTests
     public async Task CreateAsync_WhenJobIsNull_ReturnsFailure()
     {
         JobDto jobDto = null!;
+        var result = await _sut.CreateAsync(jobDto);
+        result.IsSuccess.Should().BeFalse();
+        _jobRepository.DidNotReceive().Add(Arg.Any<Job>());
+        await _unitOfWork.DidNotReceive().CommitAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenClientIdIsEmpty_ReturnsFailure()
+    {
+        var jobDto = new JobDto(
+            Guid.Empty,
+            Guid.Empty, // Invalid client ID
+            "Test Job",
+            "This is a test job.",
+            "PO12345",
+            JobPriority.Normal,
+            JobStatus.Pending,
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddDays(1),
+            DateTime.UtcNow.AddDays(7),
+            null,
+            null);
         var result = await _sut.CreateAsync(jobDto);
         result.IsSuccess.Should().BeFalse();
         _jobRepository.DidNotReceive().Add(Arg.Any<Job>());

@@ -28,10 +28,11 @@ public class Job : BaseEntity, IMultiTenant
 
     public ICollection<WorkEvent> WorkEvents { get; set; } = new List<WorkEvent>();
 
-    public static Job Create(string title, string? description, string? purchaseOrderNumber, JobPriority priority, JobStatus status, DateTime? receivedDate, DateTime? targetStartDate, DateTime? deadline, DateTime? completionDate)
+    public static Job Create(Guid clientId, string title, string? description, string? purchaseOrderNumber, JobPriority priority, JobStatus status, DateTime? receivedDate, DateTime? targetStartDate, DateTime? deadline, DateTime? completionDate)
     {
         var job = new Job
         {
+            ClientId = clientId,
             Title = title,
             Description = description,
             PurchaseOrderNumber = purchaseOrderNumber,
@@ -66,6 +67,10 @@ public class Job : BaseEntity, IMultiTenant
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(Title, nameof(Title));        
 
+        if (ClientId == Guid.Empty)
+        {
+            throw new ArgumentException("Client ID cannot be empty.", nameof(ClientId));
+        }
         if (ReceivedDate.HasValue && TargetStartDate.HasValue && ReceivedDate > TargetStartDate)
         {
             throw new ArgumentException("Received date cannot be later than target start date.");

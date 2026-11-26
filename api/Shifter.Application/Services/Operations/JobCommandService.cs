@@ -22,6 +22,7 @@ public class JobCommandService(IJobRepository jobRepository, IAddressHandler add
         try
         {
             var job = Job.Create(
+                jobDto.ClientId,
                 jobDto.Title,
                 jobDto.Description,
                 jobDto.PurchaseOrderNumber,
