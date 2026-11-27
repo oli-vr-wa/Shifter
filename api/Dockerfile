@@ -2,14 +2,13 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
 # Copy all dependencies
-COPY *.slnx ./
 COPY Shifter.API/*.csproj ./Shifter.API/
 COPY Shifter.Application/*.csproj ./Shifter.Application/
 COPY Shifter.Core/*.csproj ./Shifter.Core/
 COPY Shifter.Infrastructure/*.csproj ./Shifter.Infrastructure/
 
 # Restore dependencies
-RUN dotnet restore
+RUN dotnet restore Shifter.API/Shifter.API.csproj
 
 COPY . ./
 

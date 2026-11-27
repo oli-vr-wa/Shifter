@@ -9,8 +9,8 @@ public class Job : BaseEntity, IMultiTenant
 {
     public Guid CompanyId { get; set; }
 
-    public Guid ClientId { get; set; }
-    public Client Client { get; set; } = null!;
+    public Guid? ClientId { get; set; }
+    public Client? Client { get; set; }
 
     public required string Title { get; set; }
     public string? Description { get; set; }
@@ -28,7 +28,7 @@ public class Job : BaseEntity, IMultiTenant
 
     public ICollection<WorkEvent> WorkEvents { get; set; } = new List<WorkEvent>();
 
-    public static Job Create(Guid clientId, string title, string? description, string? purchaseOrderNumber, JobPriority priority, JobStatus status, DateTime? receivedDate, DateTime? targetStartDate, DateTime? deadline, DateTime? completionDate)
+    public static Job Create(Guid? clientId, string title, string? description, string? purchaseOrderNumber, JobPriority priority, JobStatus status, DateTime? receivedDate, DateTime? targetStartDate, DateTime? deadline, DateTime? completionDate)
     {
         var job = new Job
         {
