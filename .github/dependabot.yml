@@ -4,33 +4,22 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/api"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "monthly"
+    open-pull-requests-limit: 0
+    groups:
+      nuget-security:
+        applies-to: security-updates
+        patterns: 
+           - "*"
 
   # React/Vite Frontend
   - package-ecosystem: "npm"
     directory: "/web"
     schedule:
-      interval: "weekly"
-      day: "monday"
-
-  # Docker Environment - Main docker compose
-  - package-ecosystem: "docker-compose"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-
-  # Docker - Backend dockerfile
-  - package-ecosystem: "docker"
-    directory: "/api"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-
-  # Docker - Frontend dockerfile
-  - package-ecosystem: "docker"
-    directory: "/web"
-    schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "monthly"
+    open-pull-requests-limit: 0
+    groups:
+      npm-security:
+        applies-to: security-updates
+        patterns: 
+           - "*"
