@@ -6,9 +6,6 @@ using Shifter.Application.Interfaces.Repositories.Operations;
 using Shifter.Application.Interfaces.Services.Locations;
 using Shifter.Application.Services.Operations;
 using Shifter.Core.Entities.Operations;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Shifter.Test.Application.Services.Operations;
 
@@ -91,12 +88,35 @@ public class JobCommandServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_WhenClientIdIsNull_AddsJobAndReturnsSuccess()
+    {
+        var jobDto = new JobDto(
+            Guid.Empty,
+            null, // Null client ID
+            "Test Job",
+            "This is a test job.",
+            "PO12345",
+            JobPriority.Normal,
+            JobStatus.Pending,
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddDays(1),
+            DateTime.UtcNow.AddDays(7),
+            null,
+            null);
+        var result = await _sut.CreateAsync(jobDto);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBe(Guid.Empty);
+        _jobRepository.Received(1).Add(Arg.Any<Job>());
+        await _unitOfWork.Received(1).CommitAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task CreateAsync_WhenJobTitleIsEmpty_ReturnsFailure()
     {
         var jobDto = new JobDto(
             Guid.Empty,
             _clientId, 
-            string.Empty,   // Required field is empty
+            string.Empty,   
             "This is a test job.",
             "PO12345",
             JobPriority.Normal,

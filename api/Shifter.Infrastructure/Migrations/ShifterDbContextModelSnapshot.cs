@@ -17,7 +17,7 @@ namespace Shifter.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -462,7 +462,7 @@ namespace Shifter.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ClientId")
+                    b.Property<Guid?>("ClientId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CompanyId")
@@ -860,9 +860,7 @@ namespace Shifter.Infrastructure.Migrations
                 {
                     b.HasOne("Shifter.Core.Entities.Customers.Client", "Client")
                         .WithMany("Jobs")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ClientId");
 
                     b.HasOne("Shifter.Core.Entities.Location.Address", "SiteAddress")
                         .WithMany()

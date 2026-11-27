@@ -5,7 +5,7 @@ namespace Shifter.Application.DTOs.Operations;
 
 public record JobDto(
     Guid Id,
-    Guid ClientId,
+    Guid? ClientId,
     string Title,
     string Description,
     string PurchaseOrderNumber,
