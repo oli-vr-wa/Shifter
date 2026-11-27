@@ -29,18 +29,15 @@ public class ClientQueryService(IClientRepository clientRepository) : IClientQue
     /// <inheritdoc />
     public async Task<PageResult<ClientListItemDto>> GetClientsAsync(ClientQueryFilter filter, CancellationToken ct = default)
     {
-        var safePageNumber = filter.PageNumber <= 0 ? 1 : filter.PageNumber;
-        var safePageSize = filter.PageSize <= 0 ? 20 : filter.PageSize;
-
         var query = _clientRepository.GetQueryable();
 
-        if (!string.IsNullOrEmpty(filter.SearchTerm))
+        if (filter.SearchTerm is { } term)
         {
-            query = query.Where(c => (c.CompanyName != null && c.CompanyName.Contains(filter.SearchTerm)) ||
-                                     (c.FirstName != null && c.FirstName.Contains(filter.SearchTerm)) ||
-                                     (c.LastName != null && c.LastName.Contains(filter.SearchTerm)) ||
-                                     (c.Email != null && c.Email.Contains(filter.SearchTerm)) ||
-                                     (c.PhoneNumber != null && c.PhoneNumber.Contains(filter.SearchTerm)));
+            query = query.Where(c => (c.CompanyName != null && c.CompanyName.ToLower().Contains(term)) ||
+                                     (c.FirstName != null && c.FirstName.ToLower().Contains(term)) ||
+                                     (c.LastName != null && c.LastName.ToLower().Contains(term)) ||
+                                     (c.Email != null && c.Email.ToLower().Contains(term)) ||
+                                     (c.PhoneNumber != null && c.PhoneNumber.Contains(term)));
         }
 
         if (filter.ClientType.HasValue)
@@ -53,18 +50,26 @@ public class ClientQueryService(IClientRepository clientRepository) : IClientQue
         // Apply sorting
         query = filter.SortColumn?.ToLower() switch
         {
-            "companyname" => filter.SortDescending ? query.OrderByDescending(c => c.CompanyName) : query.OrderBy(c => c.CompanyName),
-            "firstname" => filter.SortDescending ? query.OrderByDescending(c => c.FirstName) : query.OrderBy(c => c.FirstName),
-            "lastname" => filter.SortDescending ? query.OrderByDescending(c => c.LastName) : query.OrderBy(c => c.LastName),
-            _ => query.OrderBy(c => c.CreatedAt) // Default sorting
+            "companyname" => filter.SortDescending 
+                ? query.OrderByDescending(c => c.CompanyName).ThenByDescending(c => c.Id)
+                : query.OrderBy(c => c.CompanyName).ThenBy(c => c.Id),
+            "firstname" => filter.SortDescending 
+                ? query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.Id) 
+                : query.OrderBy(c => c.FirstName).ThenBy(c => c.Id),
+            "lastname" => filter.SortDescending 
+                ? query.OrderByDescending(c => c.LastName).ThenByDescending(c => c.Id) 
+                : query.OrderBy(c => c.LastName).ThenBy(c => c.Id),
+            _ => filter.SortDescending // Default sorting
+                ? query.OrderByDescending(c => c.CreatedAt).ThenByDescending(c => c.Id) 
+                : query.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id) 
         };
 
         var items = await query
-            .Skip((safePageNumber - 1) * safePageSize)
-            .Take(safePageSize)
+            .Skip(filter.Skip)
+            .Take(filter.PageSize)
             .Select(ClientMappingExtensions.ProjectToListItem)
             .ToListAsync(ct);
 
-        return new PageResult<ClientListItemDto>(items, totalCount, safePageNumber, safePageSize);
+        return new PageResult<ClientListItemDto>(items, totalCount, filter.PageNumber, filter.PageSize);
     }
 }
