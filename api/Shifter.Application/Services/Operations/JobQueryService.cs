@@ -30,51 +30,45 @@ public class JobQueryService(IJobRepository jobRepository) : IJobQueryService
     /// <inheritdoc />
     public async Task<PageResult<JobListItemDto>> GetAllAsync(JobQueryFilter filter, CancellationToken ct = default)
     {
-        var safePageNumber = filter.PageNumber <= 0 ? 1 : filter.PageNumber;
-        var safePageSize = filter.PageSize <= 0 ? 20 : filter.PageSize;
-
         var query = _jobRepository.GetQueryable();
 
-        if (!string.IsNullOrEmpty(filter.SearchTerm))
+        if (filter.SearchTerm is { } term)
         {
-            query = query.Where(j => (j.Title != null && j.Title.Contains(filter.SearchTerm)) ||
-                                     (j.Description != null && j.Description.Contains(filter.SearchTerm)) ||
-                                     (j.PurchaseOrderNumber != null && j.PurchaseOrderNumber.Contains(filter.SearchTerm)));
+            query = query.Where(j => j.Title.ToLower().Contains(term) ||
+                                     (j.Description != null && j.Description.ToLower().Contains(term)) ||
+                                     (j.PurchaseOrderNumber != null && j.PurchaseOrderNumber.ToLower().Contains(term)));
         }
 
-        if (filter.Status.HasValue)
-        {
-            query = query.Where(j => j.Status == filter.Status.Value);
-        }
-
-        if (filter.Priority.HasValue)
-        {
-            query = query.Where(j => j.Priority == filter.Priority.Value);
-        }
-
-        if (filter.ClientId.HasValue)
-        {
-            query = query.Where(j => j.ClientId == filter.ClientId.Value);
-        }
+        if (filter.Status.HasValue) query = query.Where(j => j.Status == filter.Status.Value);       
+        if (filter.Priority.HasValue) query = query.Where(j => j.Priority == filter.Priority.Value);
+        if (filter.ClientId.HasValue) query = query.Where(j => j.ClientId == filter.ClientId.Value);
 
         var totalCount = await query.CountAsync(ct);
 
         // Apply sorting
-        query = filter.SortColumn?.ToLower() switch
+        query = filter.SortColumn switch
         {
-            "title" => filter.SortDescending ? query.OrderByDescending(j => j.Title) : query.OrderBy(j => j.Title),
-            "receiveddate" => filter.SortDescending ? query.OrderByDescending(j => j.ReceivedDate) : query.OrderBy(j => j.ReceivedDate),
-            "deadline" => filter.SortDescending ? query.OrderByDescending(j => j.Deadline) : query.OrderBy(j => j.Deadline),
-            _ => query.OrderBy(j => j.CreatedAt) // Default sorting
+            "title" => filter.SortDescending 
+                ? query.OrderByDescending(j => j.Title).ThenByDescending(j => j.Id) 
+                : query.OrderBy(j => j.Title).ThenBy(j => j.Id),
+            "receiveddate" => filter.SortDescending 
+                ? query.OrderByDescending(j => j.ReceivedDate).ThenByDescending(j => j.Id)
+                : query.OrderBy(j => j.ReceivedDate).ThenBy(j => j.Id),
+            "deadline" => filter.SortDescending 
+                ? query.OrderByDescending(j => j.Deadline).ThenByDescending(j => j.Id) 
+                : query.OrderBy(j => j.Deadline).ThenBy(j => j.Id),
+            _ => filter.SortDescending 
+                ? query.OrderByDescending(j => j.CreatedAt).ThenByDescending(j => j.Id) 
+                : query.OrderBy(j => j.CreatedAt).ThenBy(j => j.Id) // Default sorting
         };
 
         var items = await query
-            .Skip((safePageNumber - 1) * safePageSize)
-            .Take(safePageSize)
+            .Skip(filter.Skip)
+            .Take(filter.PageSize)
             .Select(JobMappingExtensions.ProjectToListItem)
             .ToListAsync(ct);
 
-        return new PageResult<JobListItemDto>(items, totalCount, safePageNumber, safePageSize);
+        return new PageResult<JobListItemDto>(items, totalCount, filter.PageNumber, filter.PageSize);
     }
 
     /// <inheritdoc />
